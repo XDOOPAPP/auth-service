@@ -24,6 +24,23 @@ class AuthService {
     };
   }
 
+  async login(email, password) {
+    const user = await userRepo.findByEmail(email);
+    if (!user) throw new Error("Invalid credentials");
+
+    const match = await hashUtil.compare(password, user.passwordHash);
+    if (!match) throw new Error("Invalid credentials");
+
+    user.refreshToken = jwtUtil.signRefreshToken();
+    user.refreshTokenExpiry = new Date(Date.now() + 7 * 86400000);
+    await userRepo.update(user);
+
+    return {
+      accessToken: jwtUtil.signAccessToken({ id: user._id, role: user.role }),
+      refreshToken: user.refreshToken
+    };
+  }
+
 }
 
 module.exports = new AuthService();
