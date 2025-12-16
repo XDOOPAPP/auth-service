@@ -6,4 +6,8 @@ router.post("/register", auth.register);   // public
 
 router.post("/login", auth.login);         // public
 
+router.post("/refresh", auth.refresh);     // public
+
+
+
 module.exports = router;

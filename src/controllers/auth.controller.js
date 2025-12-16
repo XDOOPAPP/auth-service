@@ -24,6 +24,16 @@ class AuthController {
     }
   }
 
+// [POST] /api/v1/auth/refresh
+  refresh = async (req, res, next) => {
+    try {
+      const result = await authService.refresh(req.body.refreshToken);
+      res.json(result);
+    } catch (err) {
+      next(err);
+    }
+  };
+
 }
 
 module.exports = new AuthController();

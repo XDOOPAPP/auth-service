@@ -41,6 +41,23 @@ class AuthService {
     };
   }
 
+  async refresh(refreshToken) {
+    const user = await userRepo.findByEmail(
+      (await require("jsonwebtoken").decode(refreshToken))?.email
+    );
+
+    if (
+      !user ||
+      user.refreshToken !== refreshToken ||
+      user.refreshTokenExpiry < new Date()
+    )
+      throw new Error("Invalid refresh token");
+
+    return {
+      accessToken: jwtUtil.signAccessToken({ id: user._id, role: user.role })
+    };
+  }
+
 }
 
 module.exports = new AuthService();
