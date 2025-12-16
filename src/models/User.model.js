@@ -11,17 +11,29 @@ const userSchema = new mongoose.Schema(
       type: String, 
       required: true 
     },
+    fullName: {
+      type: String,
+      default: null
+    },
     role: { 
       type: String, 
       default: "USER" 
     },
 
-    refreshToken: { 
-      type: String 
+    isVerified: { 
+      type: Boolean, 
+      default: false 
     },
-    refreshTokenExpiry: { 
-      type: Date 
-    }
+
+    otpCode: String,
+    otpExpiredAt: Date,
+
+    refreshTokens: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "RefreshToken"
+      }
+    ]
   },
   { 
     timestamps: true 

@@ -1,26 +1,34 @@
 const userRepo = require("../repositories/User.repository");
 const hashUtil = require("../utils/hash");
 const jwtUtil = require("../utils/jwt");
+const RefreshToken = require("../models/RefreshToken.model");
 
 class AuthService {
-  async register(email, password) {
+  async register(email, password, fullName) {
     const existing = await userRepo.findByEmail(email);
     if (existing) throw new Error("Email already exists");
 
     const passwordHash = await hashUtil.hash(password);
 
-    const refreshToken = jwtUtil.signRefreshToken();
-
     const user = await userRepo.create({
       email,
-      passwordHash,
-      refreshToken,
-      refreshTokenExpiry: new Date(Date.now() + 7 * 86400000)
+      passwordHash, 
+      fullName
     });
+
+    const refreshTokenString = jwtUtil.signRefreshToken();
+    const refreshTokenDoc = await RefreshToken.create({
+      token: refreshTokenString,
+      user: user._id,
+      expiresAt: new Date(Date.now() + 7 * 86400000)
+    });
+
+    user.refreshTokens.push(refreshTokenDoc._id);
+    await userRepo.update(user);
 
     return {
       accessToken: jwtUtil.signAccessToken({ id: user._id, role: user.role }),
-      refreshToken
+      refreshToken: refreshTokenString
     };
   }
 
@@ -31,27 +39,30 @@ class AuthService {
     const match = await hashUtil.compare(password, user.passwordHash);
     if (!match) throw new Error("Invalid credentials");
 
-    user.refreshToken = jwtUtil.signRefreshToken();
-    user.refreshTokenExpiry = new Date(Date.now() + 7 * 86400000);
+    const refreshTokenString = jwtUtil.signRefreshToken();
+    const refreshTokenDoc = await RefreshToken.create({
+      token: refreshTokenString,
+      user: user._id,
+      expiresAt: new Date(Date.now() + 7 * 86400000)
+    });
+
+    user.refreshTokens.push(refreshTokenDoc._id);
     await userRepo.update(user);
 
     return {
       accessToken: jwtUtil.signAccessToken({ id: user._id, role: user.role }),
-      refreshToken: user.refreshToken
+      refreshToken: refreshTokenString
     };
   }
 
   async refresh(refreshToken) {
-    const user = await userRepo.findByEmail(
-      (await require("jsonwebtoken").decode(refreshToken))?.email
-    );
+    const tokenDoc = await RefreshToken.findOne({ token: refreshToken })
+      .populate("user");
 
-    if (
-      !user ||
-      user.refreshToken !== refreshToken ||
-      user.refreshTokenExpiry < new Date()
-    )
+    if (!tokenDoc || tokenDoc.expiresAt < new Date())
       throw new Error("Invalid refresh token");
+
+    const user = tokenDoc.user;
 
     return {
       accessToken: jwtUtil.signAccessToken({ id: user._id, role: user.role })
@@ -60,7 +71,7 @@ class AuthService {
 
   async getProfile(userId) {
     const user = await userRepo.findById(userId);
-    return { id: user._id, email: user.email, role: user.role };
+    return { id: user._id, email: user.email, fullName: user.fullName, role: user.role };
   }
 
 }
