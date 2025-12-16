@@ -1,12 +1,18 @@
 const User = require("../models/User.model");
 
 class UserRepository {
+  
   async create(data) {
     return User.create(data);
   }
 
   async findByEmail(email) {
     return User.findOne({ email });
+  }
+
+  async findByEmailWithOtp(email) {
+    return User.findOne({ email })
+      .select("+otpHash +otpExpiredAt");
   }
 
   async findById(id) {

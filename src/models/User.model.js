@@ -15,19 +15,23 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null
     },
-    role: { 
-      type: String, 
-      default: "USER" 
+    role: {
+      type: String,
+      enum: ["USER", "ADMIN"],
+      default: "USER"
     },
-
     isVerified: { 
       type: Boolean, 
       default: false 
     },
-
-    otpCode: String,
-    otpExpiredAt: Date,
-
+    otpHash: { 
+      type: String, 
+      select: false 
+    },
+    otpExpiredAt: { 
+      type: Date, 
+      select: false 
+    },
     refreshTokens: [
       {
         type: mongoose.Schema.Types.ObjectId,

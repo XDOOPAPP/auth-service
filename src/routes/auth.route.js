@@ -2,12 +2,16 @@ const router = require("express").Router();
 const auth = require("../controllers/auth.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 
-router.post("/register", auth.register);   // public
+router.post("/register", auth.register);
 
-router.post("/login", auth.login);         // public
+router.post("/verify-otp", auth.verifyOtp);
 
-router.post("/refresh", auth.refresh);     // public
+router.post("/login", auth.login);
 
-router.get("/me", authMiddleware, auth.me); // auth
+router.post("/refresh", auth.refresh);
+
+router.get("/me", authMiddleware, auth.me);
+
+router.post("/verify", auth.verifyToken);
 
 module.exports = router;
