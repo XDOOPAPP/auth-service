@@ -1,6 +1,6 @@
 const app = require("./src/app");
-const connectDB = require("./config/database");
-const env = require("./config/env");
+const connectDB = require("./src/config/database");
+const env = require("./src/config/env");
 
 (async () => {
   await connectDB();
@@ -9,3 +9,4 @@ const env = require("./config/env");
     console.log(`Auth Service running on port ${env.port}`);
   });
 })();
+
