@@ -4,9 +4,13 @@ class AuthController {
 
 // [POST] /api/v1/auth/register
   register = async (req, res) => {
-    const { email, password } = req.body;
-    const result = await authService.register(email, password);
-    res.json(result);
+    try{
+      const { email, password } = req.body;
+      const result = await authService.register(email, password);
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
   };
 
 }
