@@ -10,6 +10,8 @@ Dịch vụ xác thực (Authentication) cung cấp các tính năng quản lý 
 - ✅ **Lấy thông tin user** (Profile)
 - ✅ **Token verification**
 - ✅ **Quản lý multiple sessions** (Multiple refresh tokens per user)
+- ✅ **Quên mật khẩu** với OTP verification
+- ✅ **Reset mật khẩu** qua OTP
 
 ## 🏗️ Cấu Trúc Dự Án
 
@@ -183,6 +185,71 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 }
 ```
 
+### 6. Quên Mật Khẩu
+
+```http
+POST /api/v1/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "user@example.com"
+}
+```
+
+**Response:**
+
+```json
+{
+  "message": "OTP sent to email"
+}
+```
+
+### 7. Reset Mật Khẩu
+
+```http
+POST /api/v1/auth/reset-password
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "otp": "123456",
+  "newPassword": "newPassword123"
+}
+```
+
+**Response:**
+
+```json
+{
+  "message": "Password reset successful"
+}
+```
+
+### 8. Xác Thực Token
+
+```http
+POST /api/v1/auth/verify
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Response (Valid):**
+
+```json
+{
+  "valid": true,
+  "userId": "507f1f77bcf86cd799439011",
+  "role": "USER"
+}
+```
+
+**Response (Invalid):**
+
+```json
+{
+  "valid": false
+}
+```
+
 ## 🔐 Token Configuration
 
 ### Access Token
@@ -221,7 +288,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
   isVerified: Boolean,
   otpHash: String,
   otpExpiredAt: Date,
-  refreshTokens: [ObjectId], // Liên kết RefreshToken
+  refreshTokens: [ObjectId],
   createdAt: Date,
   updatedAt: Date
 }
