@@ -56,6 +56,32 @@ class AuthController {
     }
   };
 
+  // [POST] /api/v1/auth/forgot-password
+  forgotPassword = async (req, res, next) => {
+    try {
+      const { email } = req.body;
+      const result = await authService.forgotPassword(email);
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // [POST] /api/v1/auth/reset-password
+  resetPassword = async (req, res, next) => {
+    try {
+      const { email, otp, newPassword } = req.body;
+      const result = await authService.resetPassword(
+        email,
+        otp,
+        newPassword
+      );
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   // [POST] /api/v1/auth/verify
   verifyToken = async (req, res) => {
     const token = req.headers.authorization?.split(" ")[1];

@@ -12,6 +12,10 @@ router.post("/refresh", auth.refresh);
 
 router.get("/me", authMiddleware, auth.me);
 
+router.post("/forgot-password", auth.forgotPassword);
+
+router.post("/reset-password", auth.resetPassword);
+
 router.post("/verify", auth.verifyToken);
 
 module.exports = router;

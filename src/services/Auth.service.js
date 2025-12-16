@@ -127,6 +127,43 @@ class AuthService {
     };
   }
 
+  async forgotPassword(email) {
+    const user = await userRepo.findByEmail(email);
+    if (!user) throw new Error("User not found");
+
+    const otp = generateOtp();
+
+    user.otpHash = hashOtp(otp);
+    user.otpExpiredAt = new Date(Date.now() + 5 * 60 * 1000);
+    await userRepo.update(user);
+
+    await emailService.sendOtp(email, otp);
+
+    return { message: "OTP sent to email" };
+  }
+
+  async resetPassword(email, otp, newPassword) {
+    const user = await userRepo.findByEmailWithOtp(email);
+    if (!user) throw new Error("User not found");
+
+    const isValidOtp = await hashUtil.compare(otp, user.otpHash)
+    if (
+      !user.otpHash ||
+      user.otpExpiredAt < new Date() ||
+      !isValidOtp
+    ) {
+      throw new Error("Invalid or expired OTP");
+    }
+
+    user.passwordHash = await hashUtil.hash(newPassword);
+    user.otpHash = null;
+    user.otpExpiredAt = null;
+    await userRepo.update(user);
+
+    return { message: "Password reset successful" };
+  }
+
+
   async verifyToken(token) {
     try {
       const payload = jwtUtil.verifyToken(token, process.env.JWT_SECRET);
