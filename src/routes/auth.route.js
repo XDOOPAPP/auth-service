@@ -8,6 +8,6 @@ router.post("/login", auth.login);         // public
 
 router.post("/refresh", auth.refresh);     // public
 
-
+router.get("/me", authMiddleware, auth.me); // auth
 
 module.exports = router;

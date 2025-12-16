@@ -58,6 +58,11 @@ class AuthService {
     };
   }
 
+  async getProfile(userId) {
+    const user = await userRepo.findById(userId);
+    return { id: user._id, email: user.email, role: user.role };
+  }
+
 }
 
 module.exports = new AuthService();

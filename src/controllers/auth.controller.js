@@ -34,6 +34,16 @@ class AuthController {
     }
   };
 
+// [GET] /api/v1/auth/me
+  me = async (req, res, next) => {
+    try {
+      const profile = await authService.getProfile(req.user.id);
+      res.json(profile);
+    } catch (err) {
+      next(err);
+    }
+  };
+
 }
 
 module.exports = new AuthController();
