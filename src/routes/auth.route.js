@@ -18,4 +18,13 @@ router.post("/reset-password", auth.resetPassword);
 
 router.post("/verify", auth.verifyToken);
 
+router.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "healthy",
+    service: "Auth Service",
+    timestamp: new Date().toISOString(),
+    uptime: `${Math.floor(process.uptime())} seconds`,
+  });
+});
+
 module.exports = router;

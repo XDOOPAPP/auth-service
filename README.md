@@ -83,6 +83,71 @@ npm run dev
 npm start
 ```
 
+## 🐳 Docker Setup
+
+### Cách 1: Chạy với Docker Compose (Recommended)
+
+```bash
+docker-compose up --build
+```
+
+**Services sẽ chạy:**
+
+- Auth Service: `http://localhost:3000`
+- MongoDB: `localhost:27017`
+
+**Dừng services:**
+
+```bash
+docker-compose down
+```
+
+**Xóa volume (database):**
+
+```bash
+docker-compose down -v
+```
+
+### Cách 2: Build & Run Manual
+
+**Build image:**
+
+```bash
+docker build -t auth-service:latest .
+```
+
+**Run container:**
+
+```bash
+docker run -p 3000:3000 \
+  -e MONGO_URL=mongodb://your-mongo-host:27017/auth-service \
+  -e JWT_SECRET=your_secret \
+  -e JWT_REFRESH_SECRET=your_refresh_secret \
+  auth-service:latest
+```
+
+### Docker Compose Environment
+
+File `docker-compose.yml` bao gồm:
+
+- **MongoDB 7.0** - Database
+- **Auth Service** - Node.js app
+- **Network** - Internal communication
+- **Volumes** - Persistent data storage
+- **Health Checks** - Tự động restart nếu service down
+
+**Cấu hình MongoDB:**
+
+- Username: `admin`
+- Password: `password`
+- Database: `auth-service`
+
+⚠️ **Lưu ý:** Thay đổi default credentials và secrets trong production!
+
+```bash
+npm start
+```
+
 ## 📡 API Endpoints
 
 ### 1. Đăng Ký Tài Khoản
