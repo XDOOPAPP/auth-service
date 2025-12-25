@@ -24,6 +24,17 @@ class AuthController {
     }
   };
 
+  // [POST] /api/v1/auth/resend-otp
+  resendOtp = async (req, res, next) => {
+    try {
+      const { email } = req.body;
+      const result = await authService.resendOtp(email);
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   // [POST] /api/v1/auth/login
   login = async (req, res, next) => {
     try {

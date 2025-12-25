@@ -58,7 +58,7 @@ npm install
 Tạo file `.env` trong root folder:
 
 ```env
-PORT=3000
+PORT=3001
 MONGO_URL=mongodb://localhost:27017/auth-service
 JWT_SECRET=your_jwt_secret_key_here
 JWT_REFRESH_SECRET=your_refresh_secret_key_here

@@ -1,8 +1,8 @@
-const crypto = require("crypto");
+const bcrypt = require("bcrypt");
 
-exports.generateOtp = () => {
-  return crypto.randomInt(100000, 1000000).toString();
+exports.generateOtp = () =>
+  Math.floor(100000 + Math.random() * 900000).toString();
+
+exports.hashOtp = async (otp) => {
+  return await bcrypt.hash(String(otp), 10);
 };
-
-exports.hashOtp = (otp) =>
-  crypto.createHash("sha256").update(otp).digest("hex");
