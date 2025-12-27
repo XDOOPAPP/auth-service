@@ -1,45 +1,28 @@
 # Build stage
 FROM node:20-alpine AS builder
-
 WORKDIR /app
-
-# Copy package files
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
-
-# Copy source code
 COPY . .
 
 # Production stage
 FROM node:20-alpine
-
 WORKDIR /app
 
-# Install dumb-init to handle signals properly
-RUN apk add --no-cache dumb-init
+# Install system tools
+RUN apk add --no-cache dumb-init curl
 
-# Copy node_modules from builder
 COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app .
 
-# Copy source code from builder
-COPY --from=builder /app . 
-
-# Create non-root user for security
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nodejs -u 1001
+RUN addgroup -g 1001 -S nodejs \
+  && adduser -S nodejs -u 1001
 USER nodejs
 
-# Expose port
 EXPOSE 3001
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3001/api/v1/auth/health', (r) => {if (r.statusCode !== 404) throw new Error(r.statusCode)})" || exit 1
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:3001/api/v1/auth/health || exit 1
 
-# Use dumb-init to handle signals
 ENTRYPOINT ["dumb-init", "--"]
-
-# Start application
 CMD ["npm", "start"]

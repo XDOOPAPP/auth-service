@@ -1,7 +1,6 @@
 version: "3.9"
 
 services:
-  # MongoDB
   mongodb:
     image: mongo:7.0-jammy
     container_name: auth-mongodb
@@ -12,38 +11,28 @@ services:
     volumes:
       - mongodb_data:/data/db
     networks:
-      - auth-network
+      - api-gateway-network
 
-  # Auth Service
   auth-service:
     build: .
     container_name: auth-service
-    ports:
-      - "3001:3001"
+    # ports:
+    #   - "3001:3001"
     environment:
       PORT: 3001
-
-      # Mongo
       MONGO_URL: mongodb://admin:password@mongodb:27017/auth_db?authSource=admin
-
-      # JWT
       JWT_SECRET: dev_jwt_secret
       JWT_REFRESH_SECRET: dev_refresh_secret
-
-      # Email (SMTP Gmail)
       EMAIL_USER: vvq0522@gmail.com
       EMAIL_PASS: pyzewbsumidnrqsw
-
     depends_on:
       - mongodb
     networks:
-      - auth-network
+      - api-gateway-network
 
-# Volumes
 volumes:
   mongodb_data:
 
-# Network
 networks:
-  auth-network:
-    driver: bridge
+  api-gateway-network:
+    external: true

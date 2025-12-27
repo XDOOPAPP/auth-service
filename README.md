@@ -1,156 +1,101 @@
 # Auth Service
 
-Dịch vụ xác thực (Authentication) cung cấp các tính năng quản lý người dùng, JWT tokens, và OTP verification.
+Dịch vụ xác thực (Authentication Service) cho hệ thống microservices, cung cấp JWT authentication, OTP verification, và quản lý user.
 
 ## 📋 Tính Năng
 
-- ✅ **Đăng ký tài khoản** với OTP verification
-- ✅ **Đăng nhập** với email/password
-- ✅ **Refresh token** để cấp access token mới
-- ✅ **Lấy thông tin user** (Profile)
-- ✅ **Token verification**
-- ✅ **Quản lý multiple sessions** (Multiple refresh tokens per user)
-- ✅ **Quên mật khẩu** với OTP verification
-- ✅ **Reset mật khẩu** qua OTP
+- ✅ Đăng ký tài khoản với OTP verification qua email
+- ✅ Đăng nhập với email/password
+- ✅ Refresh token để cấp access token mới
+- ✅ Lấy thông tin user profile
+- ✅ Token verification
+- ✅ Quên mật khẩu và reset mật khẩu qua OTP
+- ✅ Resend OTP
+- ✅ Quản lý multiple sessions (nhiều refresh tokens)
 
-## 🏗️ Cấu Trúc Dự Án
+## 🚀 Quick Start
 
-```
-auth-service/
-├── index.js                          # Entry point
-├── package.json                      # Dependencies
-├── src/
-│   ├── app.js                        # Express app setup
-│   ├── config/
-│   │   ├── database.js              # MongoDB connection
-│   │   └── env.js                   # Environment config
-│   ├── controllers/
-│   │   └── auth.controller.js       # Auth endpoints handlers
-│   ├── middlewares/
-│   │   ├── auth.middleware.js       # JWT verification
-│   │   └── error.middleware.js      # Global error handler
-│   ├── models/
-│   │   ├── User.model.js            # User schema
-│   │   └── RefreshToken.model.js    # Refresh token schema
-│   ├── repositories/
-│   │   └── User.repository.js       # Database queries
-│   ├── routes/
-│   │   └── auth.route.js            # Auth routes
-│   ├── services/
-│   │   ├── Auth.service.js          # Auth business logic
-│   │   └── Email.service.js         # Email sending
-│   └── utils/
-│       ├── hash.js                  # Password hashing (bcrypt)
-│       ├── jwt.js                   # JWT token utils
-│       └── otp.js                   # OTP generation & hashing
-```
-
-## 🚀 Cài Đặt
-
-### 1. Cài đặt Dependencies
+### Local Development
 
 ```bash
+# Cài đặt dependencies
 npm install
+
+# Tạo file .env
+cp .env.example .env  # (nếu có) hoặc tạo file .env
+
+# Chạy development (với auto-reload)
+npm run dev
+
+# Chạy production
+npm start
 ```
 
-### 2. Cấu hình Environment
+### Docker
+
+```bash
+# Chạy với Docker Compose (bao gồm MongoDB)
+docker-compose up -d
+
+# Xem logs
+docker logs -f auth-service
+
+# Dừng services
+docker-compose down
+```
+
+## ⚙️ Environment Variables
 
 Tạo file `.env` trong root folder:
 
 ```env
+# Server
 PORT=3001
-MONGO_URL=mongodb://localhost:27017/auth-service
+
+# Database
+MONGO_URL=mongodb://admin:password@mongodb:27017/auth_db?authSource=admin
+
+# JWT
 JWT_SECRET=your_jwt_secret_key_here
 JWT_REFRESH_SECRET=your_refresh_secret_key_here
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your_email@gmail.com
-SMTP_PASS=your_app_password
-SMTP_FROM=your_email@gmail.com
+
+# Email (Gmail)
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASS=your_app_password
 ```
 
-### 3. Chạy Ứng Dụng
-
-**Development (with auto-reload):**
-
-```bash
-npm run dev
-```
-
-**Production:**
-
-```bash
-npm start
-```
-
-## 🐳 Docker Setup
-
-### Cách 1: Chạy với Docker Compose (Recommended)
-
-```bash
-docker-compose up --build
-```
-
-**Services sẽ chạy:**
-
-- Auth Service: `http://localhost:3000`
-- MongoDB: `localhost:27017`
-
-**Dừng services:**
-
-```bash
-docker-compose down
-```
-
-**Xóa volume (database):**
-
-```bash
-docker-compose down -v
-```
-
-### Cách 2: Build & Run Manual
-
-**Build image:**
-
-```bash
-docker build -t auth-service:latest .
-```
-
-**Run container:**
-
-```bash
-docker run -p 3000:3000 \
-  -e MONGO_URL=mongodb://your-mongo-host:27017/auth-service \
-  -e JWT_SECRET=your_secret \
-  -e JWT_REFRESH_SECRET=your_refresh_secret \
-  auth-service:latest
-```
-
-### Docker Compose Environment
-
-File `docker-compose.yml` bao gồm:
-
-- **MongoDB 7.0** - Database
-- **Auth Service** - Node.js app
-- **Network** - Internal communication
-- **Volumes** - Persistent data storage
-- **Health Checks** - Tự động restart nếu service down
-
-**Cấu hình MongoDB:**
-
-- Username: `admin`
-- Password: `password`
-- Database: `auth-service`
-
-⚠️ **Lưu ý:** Thay đổi default credentials và secrets trong production!
-
-```bash
-npm start
-```
+**Lưu ý:**
+- `EMAIL_PASS` phải là App Password (không phải password thường)
+- Đổi tất cả secrets trong production
+- MongoDB connection string phải dùng service name trong Docker (`mongodb`), không phải `localhost`
 
 ## 📡 API Endpoints
 
-### 1. Đăng Ký Tài Khoản
+Base URL: `http://localhost:3001/api/v1/auth`
+
+### Public Endpoints
+
+| Method | Endpoint | Mô tả |
+|--------|----------|-------|
+| `POST` | `/register` | Đăng ký tài khoản mới |
+| `POST` | `/verify-otp` | Xác thực OTP và hoàn tất đăng ký |
+| `POST` | `/resend-otp` | Gửi lại OTP |
+| `POST` | `/login` | Đăng nhập |
+| `POST` | `/refresh` | Refresh access token |
+| `POST` | `/forgot-password` | Gửi OTP để reset password |
+| `POST` | `/reset-password` | Reset password với OTP |
+| `POST` | `/verify` | Xác thực token |
+| `GET` | `/health` | Health check |
+
+### Protected Endpoints
+
+| Method | Endpoint | Mô tả | Auth |
+|--------|----------|-------|------|
+| `GET` | `/me` | Lấy thông tin user hiện tại | Bearer Token |
+
+## 📝 API Examples
+
+### 1. Đăng Ký
 
 ```http
 POST /api/v1/auth/register
@@ -164,14 +109,13 @@ Content-Type: application/json
 ```
 
 **Response:**
-
 ```json
 {
   "message": "OTP sent to email. Please verify your account."
 }
 ```
 
-### 2. Xác Thực OTP
+### 2. Verify OTP
 
 ```http
 POST /api/v1/auth/verify-otp
@@ -184,7 +128,6 @@ Content-Type: application/json
 ```
 
 **Response:**
-
 ```json
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -205,7 +148,6 @@ Content-Type: application/json
 ```
 
 **Response:**
-
 ```json
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -213,7 +155,7 @@ Content-Type: application/json
 }
 ```
 
-### 4. Cấp Access Token Mới
+### 4. Refresh Token
 
 ```http
 POST /api/v1/auth/refresh
@@ -225,14 +167,13 @@ Content-Type: application/json
 ```
 
 **Response:**
-
 ```json
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
 
-### 5. Lấy Thông Tin User
+### 5. Get Profile
 
 ```http
 GET /api/v1/auth/me
@@ -240,7 +181,6 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Response:**
-
 ```json
 {
   "id": "507f1f77bcf86cd799439011",
@@ -250,26 +190,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 }
 ```
 
-### 6. Quên Mật Khẩu
-
-```http
-POST /api/v1/auth/forgot-password
-Content-Type: application/json
-
-{
-  "email": "user@example.com"
-}
-```
-
-**Response:**
-
-```json
-{
-  "message": "OTP sent to email"
-}
-```
-
-### 7. Reset Mật Khẩu
+### 6. Reset Password
 
 ```http
 POST /api/v1/auth/reset-password
@@ -282,99 +203,110 @@ Content-Type: application/json
 }
 ```
 
-**Response:**
-
-```json
-{
-  "message": "Password reset successful"
-}
-```
-
-### 8. Xác Thực Token
-
-```http
-POST /api/v1/auth/verify
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
-
-**Response (Valid):**
-
-```json
-{
-  "valid": true,
-  "userId": "507f1f77bcf86cd799439011",
-  "role": "USER"
-}
-```
-
-**Response (Invalid):**
-
-```json
-{
-  "valid": false
-}
-```
-
 ## 🔐 Token Configuration
 
 ### Access Token
-
 - **Thời hạn:** 15 phút
 - **Secret:** `JWT_SECRET`
 - **Payload:** `{ id, role }`
+- **Stateless:** Không lưu database
 
 ### Refresh Token
-
 - **Thời hạn:** 7 ngày
 - **Secret:** `JWT_REFRESH_SECRET`
 - **Lưu trữ:** Database (RefreshToken collection)
-- **Liên kết:** User model (refreshTokens array)
+- **Multiple sessions:** User có thể có nhiều refresh tokens
 
-## 🛡️ Authentication Flow
+## 🏗️ Cấu Trúc Dự Án
 
 ```
-1. User đăng ký → Gửi OTP qua email
-2. User verify OTP → Tạo RefreshToken + AccessToken
-3. User login → Tạo RefreshToken mới + AccessToken
-4. AccessToken hết hạn → Dùng RefreshToken để cấp AccessToken mới
-5. Gọi API authenticated → Gửi AccessToken trong header
+auth-service/
+├── index.js                    # Entry point
+├── package.json
+├── Dockerfile
+├── docker-compose.yml
+└── src/
+    ├── app.js                  # Express app setup
+    ├── config/
+    │   ├── database.js        # MongoDB connection
+    │   └── env.js             # Environment config
+    ├── controllers/
+    │   └── auth.controller.js  # Request handlers
+    ├── middlewares/
+    │   ├── auth.middleware.js # JWT verification
+    │   └── error.middleware.js # Error handler
+    ├── models/
+    │   ├── User.model.js      # User schema
+    │   └── RefreshToken.model.js # RefreshToken schema
+    ├── repositories/
+    │   └── User.repository.js  # Database queries
+    ├── routes/
+    │   └── auth.route.js      # Route definitions
+    ├── services/
+    │   ├── Auth.service.js    # Business logic
+    │   └── Email.service.js   # Email sending
+    └── utils/
+        ├── hash.js            # Password hashing (bcrypt)
+        ├── jwt.js             # JWT utilities
+        └── otp.js             # OTP generation
 ```
 
 ## 📊 Database Models
 
-### User Schema
-
+### User
 ```javascript
 {
-  email: String (unique),
-  passwordHash: String,
-  fullName: String,
-  role: String (USER/ADMIN),
-  isVerified: Boolean,
+  email: String (unique, required),
+  passwordHash: String (required),
+  fullName: String (required),
+  role: String (USER/ADMIN, default: USER),
+  isVerified: Boolean (default: false),
   otpHash: String,
   otpExpiredAt: Date,
-  refreshTokens: [ObjectId],
+  refreshTokens: [ObjectId], // References to RefreshToken
   createdAt: Date,
   updatedAt: Date
 }
 ```
 
-### RefreshToken Schema
-
+### RefreshToken
 ```javascript
 {
-  token: String,
-  user: ObjectId, // Liên kết User
-  expiresAt: Date,
-  isRevoked: Boolean,
+  token: String (required),
+  user: ObjectId (required, ref: User),
+  expiresAt: Date (required),
+  isRevoked: Boolean (default: false),
   createdAt: Date,
   updatedAt: Date
 }
 ```
+
+## 🐳 Docker Setup
+
+### Docker Compose (Recommended)
+
+File `docker-compose.yml` bao gồm:
+- **MongoDB 7.0** - Database
+- **Auth Service** - Node.js application
+- **Network** - Internal communication
+- **Volumes** - Persistent data
+
+**Chạy:**
+```bash
+docker-compose up -d
+```
+
+**MongoDB Config:**
+- Username: `admin`
+- Password: `password`
+- Database: `auth_db`
+- Connection: `mongodb://admin:password@mongodb:27017/auth_db?authSource=admin`
+
+⚠️ **Lưu ý:** Đổi credentials trong production!
 
 ## 🚨 Error Handling
 
-Tất cả errors được catch bởi global error middleware và trả về format:
+Tất cả errors được xử lý bởi global error middleware:
 
 ```json
 {
@@ -384,41 +316,55 @@ Tất cả errors được catch bởi global error middleware và trả về fo
 ```
 
 **Common Errors:**
+- `400` - `Email already exists` - Email đã tồn tại
+- `401` - `Invalid credentials` - Email/Password sai
+- `401` - `Account not verified` - Tài khoản chưa xác thực
+- `400` - `Invalid or expired OTP` - OTP sai hoặc hết hạn
+- `401` - `Invalid refresh token` - Refresh token không hợp lệ
+- `401` - `Unauthorized` - Không có token
+- `401` - `Invalid token` - Token không hợp lệ
 
-- `Email already exists` - Tài khoản đã tồn tại
-- `Invalid credentials` - Email/Password sai
-- `Account not verified` - Tài khoản chưa xác thực
-- `Invalid or expired OTP` - OTP sai hoặc hết hạn
-- `Invalid refresh token` - Token không hợp lệ
-- `Refresh token expired` - Token hết hạn
-- `Unauthorized` - Không có Authorization header
-- `Invalid token` - AccessToken không hợp lệ
+## 🔄 Authentication Flow
 
-## 🔧 Utils
+```
+1. Register → Gửi OTP qua email
+2. Verify OTP → Tạo AccessToken + RefreshToken
+3. Login → Tạo AccessToken + RefreshToken mới
+4. AccessToken hết hạn → Dùng RefreshToken để lấy AccessToken mới
+5. API calls → Gửi AccessToken trong Authorization header
+```
 
-### `hash.js`
+## 🔧 Development
 
-- `hash(password)` - Hash password với bcrypt
-- `compare(password, hash)` - So sánh password
+```bash
+# Install dependencies
+npm install
 
-### `jwt.js`
+# Run with auto-reload
+npm run dev
 
-- `signAccessToken(payload)` - Tạo access token (15m)
-- `signRefreshToken()` - Tạo refresh token (7d)
-- `verifyToken(token, secret)` - Xác thực token
+# Run production
+npm start
+```
 
-### `otp.js`
+## 📦 Dependencies
 
-- `generateOtp()` - Tạo OTP 6 chữ số
-- `hashOtp(otp)` - Hash OTP để lưu database
+- **express** - Web framework
+- **mongoose** - MongoDB ODM
+- **jsonwebtoken** - JWT handling
+- **bcrypt** - Password hashing
+- **nodemailer** - Email sending
+- **dotenv** - Environment variables
+- **morgan** - HTTP request logger
 
-## 📝 Notes
+## 🔒 Security Notes
 
-- Password được hash với bcrypt trước khi lưu database
-- OTP gửi qua email (Nodemailer)
-- Refresh tokens được lưu database để có thể revoke
-- User có thể có multiple refresh tokens (multiple devices)
-- AccessToken không lưu database (stateless)
+- Passwords được hash với bcrypt (salt rounds: 10)
+- OTP được hash trước khi lưu database
+- JWT tokens có expiration time
+- Refresh tokens có thể revoke
+- Email verification required để login
+- OTP expires sau 5 phút
 
 ## 📄 License
 
