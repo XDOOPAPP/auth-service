@@ -1,32 +1,29 @@
 const router = require("express").Router();
-const auth = require("../controllers/auth.controller");
+const AuthController = require("../controllers/auth.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
+const asyncHandler = require("../utils/asyncHandler");
 
-router.post("/register", auth.register);
+module.exports = (app) => {
+  const bus = app.get("eventBus");
+  const auth = new AuthController(bus);
 
-router.post("/verify-otp", auth.verifyOtp);
+  router.post("/register", asyncHandler(auth.register));
 
-router.post("/resend-otp", auth.resendOtp);
+  router.post("/verify-otp", asyncHandler(auth.verifyOtp));
 
-router.post("/login", auth.login);
+  router.post("/resend-otp", asyncHandler(auth.resendOtp));
 
-router.post("/refresh", auth.refresh);
+  router.post("/login", asyncHandler(auth.login));
 
-router.get("/me", authMiddleware, auth.me);
+  router.post("/refresh", asyncHandler(auth.refresh));
 
-router.post("/forgot-password", auth.forgotPassword);
+  router.get("/me", authMiddleware, asyncHandler(auth.me));
 
-router.post("/reset-password", auth.resetPassword);
+  router.post("/forgot-password", asyncHandler(auth.forgotPassword));
 
-router.post("/verify", auth.verifyToken);
+  router.post("/reset-password", asyncHandler(auth.resetPassword));
 
-router.get("/health", (req, res) => {
-  res.status(200).json({
-    status: "healthy",
-    service: "Auth Service",
-    timestamp: new Date().toISOString(),
-    uptime: `${Math.floor(process.uptime())} seconds`,
-  });
-});
+  router.post("/verify", asyncHandler(auth.verifyToken));
 
-module.exports = router;
+  return router;
+};

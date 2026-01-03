@@ -4,11 +4,17 @@ const jwtUtil = require("../utils/jwt");
 const RefreshToken = require("../models/RefreshToken.model");
 const emailService = require("../services/Email.service");
 const { generateOtp, hashOtp } = require("../utils/otp");
+const AppError = require("../utils/appError");
 
 class AuthService {
+
+  constructor(eventBus) {
+    this.eventBus = eventBus;
+  }
+
   async register(email, password, fullName) {
     const existing = await userRepo.findByEmail(email);
-    if (existing) throw new Error("Email already exists");
+    if (existing) throw new AppError("Email already exists");
 
     const passwordHash = await hashUtil.hash(password);
     const otp = generateOtp();
@@ -31,14 +37,14 @@ class AuthService {
 
   async verifyOtp(email, otp) {
     const user = await userRepo.findByEmailWithOtp(email);
-    if (!user) throw new Error("User not found");
+    if (!user) throw new AppError("User not found");
 
     if (!user.otpHash || !user.otpExpiredAt) {
-      throw new Error("Invalid or expired OTP");
+      throw new AppError("Invalid or expired OTP");
     }
 
     if (new Date() > new Date(user.otpExpiredAt)) {
-      throw new Error("Invalid or expired OTP");
+      throw new AppError("Invalid or expired OTP");
     }
 
     const isValidOtp = await hashUtil.compare(
@@ -47,7 +53,7 @@ class AuthService {
     );
 
     if (!isValidOtp) {
-      throw new Error("Invalid or expired OTP");
+      throw new AppError("Invalid or expired OTP");
     }
 
     user.isVerified = true;
@@ -67,9 +73,12 @@ class AuthService {
     user.refreshTokens.push(tokenDoc._id);
     await userRepo.update(user);
 
+    const bus = this.eventBus;
+    await bus.publish("USER_CREATED", { userId: user._id.toString() });
+
     return {
       accessToken: jwtUtil.signAccessToken({
-        id: user._id,
+        userId: user._id,
         role: user.role
       }),
       refreshToken
@@ -78,10 +87,10 @@ class AuthService {
 
   async resendOtp(email) {
     const user = await userRepo.findByEmail(email);
-    if (!user) throw new Error("User not found");
+    if (!user) throw new AppError("User not found");
 
     if (user.isVerified) {
-      throw new Error("Account already verified");
+      throw new AppError("Account already verified");
     }
 
     const otp = generateOtp();
@@ -100,13 +109,13 @@ class AuthService {
 
   async login(email, password) {
     const user = await userRepo.findByEmail(email);
-    if (!user) throw new Error("Invalid credentials");
+    if (!user) throw new AppError("Invalid credentials");
 
     if (!user.isVerified)
-      throw new Error("Account not verified");
+      throw new AppError("Account not verified");
 
     const match = await hashUtil.compare(password, user.passwordHash);
-    if (!match) throw new Error("Invalid credentials");
+    if (!match) throw new AppError("Invalid credentials");
 
     const refreshToken = jwtUtil.signRefreshToken();
     const tokenDoc = await RefreshToken.create({
@@ -120,7 +129,7 @@ class AuthService {
 
     return {
       accessToken: jwtUtil.signAccessToken({
-        id: user._id,
+        userId: user._id,
         role: user.role
       }),
       refreshToken
@@ -134,14 +143,14 @@ class AuthService {
     }).populate("user");
 
     if (!tokenDoc)
-      throw new Error("Invalid refresh token");
+      throw new AppError("Invalid refresh token");
 
     if (tokenDoc.expiresAt < new Date())
-      throw new Error("Refresh token expired");
+      throw new AppError("Refresh token expired");
 
     return {
       accessToken: jwtUtil.signAccessToken({
-        id: tokenDoc.user._id,
+        userId: tokenDoc.user._id,
         role: tokenDoc.user.role
       })
     };
@@ -149,7 +158,7 @@ class AuthService {
 
   async getProfile(userId) {
     const user = await userRepo.findById(userId);
-    if (!user) throw new Error("User not found");
+    if (!user) throw new AppError("User not found");
 
     return {
       id: user._id,
@@ -161,7 +170,7 @@ class AuthService {
 
   async forgotPassword(email) {
     const user = await userRepo.findByEmail(email);
-    if (!user) throw new Error("User not found");
+    if (!user) throw new AppError("User not found");
 
     const otp = generateOtp();
 
@@ -176,7 +185,7 @@ class AuthService {
 
   async resetPassword(email, otp, newPassword) {
     const user = await userRepo.findByEmailWithOtp(email);
-    if (!user) throw new Error("User not found");
+    if (!user) throw new AppError("User not found");
 
     const isValidOtp = await hashUtil.compare(otp, user.otpHash)
     if (
@@ -184,7 +193,7 @@ class AuthService {
       user.otpExpiredAt < new Date() ||
       !isValidOtp
     ) {
-      throw new Error("Invalid or expired OTP");
+      throw new AppError("Invalid or expired OTP");
     }
 
     user.passwordHash = await hashUtil.hash(newPassword);
@@ -201,7 +210,7 @@ class AuthService {
       const payload = jwtUtil.verifyToken(token, process.env.JWT_SECRET);
       return {
         valid: true,
-        userId: payload.id,
+        userId: payload.userId,
         role: payload.role
       };
     } catch {
@@ -211,4 +220,4 @@ class AuthService {
 
 }
 
-module.exports = new AuthService();
+module.exports = AuthService;

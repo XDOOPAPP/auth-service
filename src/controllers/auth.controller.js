@@ -1,105 +1,75 @@
-const authService = require("../services/Auth.service");
+const AuthService = require("../services/Auth.service");
 
 class AuthController {
+  constructor(eventBus) {
+    this.authService = new AuthService(eventBus);
+  }
 
   // [POST] /api/v1/auth/register
-  register = async (req, res, next) => {
-    try {
-      const { email, password, fullName } = req.body;
-      const result = await authService.register(email, password, fullName);
-      res.json(result);
-    } catch (error) {
-      next(error);
-    }
-  };
+  register = async(req, res) => {
+    const { email, password, fullName } = req.body;
+    const result = await this.authService.register(email, password, fullName);
+    res.json(result);
+  }
 
   // [POST] /api/v1/auth/verify-otp
-  verifyOtp = async (req, res, next) => {
-    try {
-      const { email, otp } = req.body;
-      const result = await authService.verifyOtp(email, otp);
-      res.json(result);
-    } catch (error) {
-      next(error);
-    }
-  };
+  verifyOtp = async(req, res) => {
+    const { email, otp } = req.body;
+    const result = await this.authService.verifyOtp(email, otp);
+    res.json(result);
+  }
 
   // [POST] /api/v1/auth/resend-otp
-  resendOtp = async (req, res, next) => {
-    try {
-      const { email } = req.body;
-      const result = await authService.resendOtp(email);
-      res.json(result);
-    } catch (error) {
-      next(error);
-    }
-  };
+  resendOtp = async (req, res) => {
+    const { email } = req.body;
+    const result = await this.authService.resendOtp(email);
+    res.json(result);
+  }
 
   // [POST] /api/v1/auth/login
-  login = async (req, res, next) => {
-    try {
-      const { email, password } = req.body;
-      const result = await authService.login(email, password);
-      res.json(result);
-    } catch (error) {
-      next(error);
-    }
-  };
+  login = async (req, res) => {
+    const { email, password } = req.body;
+    const result = await this.authService.login(email, password);
+    res.json(result);
+  }
 
   // [POST] /api/v1/auth/refresh
-  refresh = async (req, res, next) => {
-    try {
-      const { refreshToken } = req.body;
-      const result = await authService.refresh(refreshToken);
-      res.json(result);
-    } catch (error) {
-      next(error);
-    }
-  };
+  refresh = async (req, res) => {
+    const { refreshToken } = req.body;
+    const result = await this.authService.refresh(refreshToken);
+    res.json(result);
+  }
 
   // [GET] /api/v1/auth/me
-  me = async (req, res, next) => {
-    try {
-      const profile = await authService.getProfile(req.user.id);
-      res.json(profile);
-    } catch (error) {
-      next(error);
-    }
-  };
+  me = async (req, res) => {
+    const profile = await this.authService.getProfile(req.user.id);
+    res.json(profile);
+  }
 
   // [POST] /api/v1/auth/forgot-password
-  forgotPassword = async (req, res, next) => {
-    try {
-      const { email } = req.body;
-      const result = await authService.forgotPassword(email);
-      res.json(result);
-    } catch (error) {
-      next(error);
-    }
-  };
+  forgotPassword = async (req, res) => {
+    const { email } = req.body;
+    const result = await this.authService.forgotPassword(email);
+    res.json(result);
+  }
 
   // [POST] /api/v1/auth/reset-password
-  resetPassword = async (req, res, next) => {
-    try {
-      const { email, otp, newPassword } = req.body;
-      const result = await authService.resetPassword(
-        email,
-        otp,
-        newPassword
-      );
-      res.json(result);
-    } catch (error) {
-      next(error);
-    }
-  };
+  resetPassword = async (req, res) => {
+    const { email, otp, newPassword } = req.body;
+    const result = await this.authService.resetPassword(
+      email,
+      otp,
+      newPassword
+    );
+    res.json(result);
+  }
 
   // [POST] /api/v1/auth/verify
   verifyToken = async (req, res) => {
     const token = req.headers.authorization?.split(" ")[1];
-    const result = await authService.verifyToken(token);
+    const result = await this.authService.verifyToken(token);
     res.json(result);
-  };
-
+  }
 }
 
-module.exports = new AuthController();
+module.exports = AuthController;
