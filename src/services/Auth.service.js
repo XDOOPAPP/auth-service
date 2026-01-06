@@ -5,6 +5,7 @@ const RefreshToken = require("../models/RefreshToken.model");
 const emailService = require("../services/Email.service");
 const { generateOtp, hashOtp } = require("../utils/otp");
 const AppError = require("../utils/appError");
+const env = require("../config/env")
 
 class AuthService {
 
@@ -207,7 +208,7 @@ class AuthService {
 
   async verifyToken(token) {
     try {
-      const payload = jwtUtil.verifyToken(token, process.env.JWT_SECRET);
+      const payload = jwtUtil.verifyToken(token);
       return {
         valid: true,
         userId: payload.userId,

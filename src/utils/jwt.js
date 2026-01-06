@@ -6,8 +6,6 @@ exports.signAccessToken = (payload) => {
     throw new Error("JWT_SECRET is not defined");
   }
 
-  console.log('[Auth Service] Signing token. Secret start:', env.jwtSecret ? env.jwtSecret.substring(0, 5) : 'NONE');
-  console.log('[Auth Service] Payload:', JSON.stringify(payload));
   return jwt.sign(payload, env.jwtSecret, {
     expiresIn: "15m",
   });

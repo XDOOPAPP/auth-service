@@ -42,7 +42,7 @@ class AuthController {
 
   // [GET] /api/v1/auth/me
   me = async (req, res) => {
-    const profile = await this.authService.getProfile(req.user.id);
+    const profile = await this.authService.getProfile(req.user.userId);
     res.json(profile);
   }
 
