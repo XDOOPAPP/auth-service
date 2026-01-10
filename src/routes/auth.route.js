@@ -25,5 +25,9 @@ module.exports = (app) => {
 
   router.post("/verify", asyncHandler(auth.verifyToken));
 
+  router.get("/health", (req, res) => {
+    res.status(200).json({ status: 'ok', service: 'auth-service' });
+  });
+
   return router;
 };
