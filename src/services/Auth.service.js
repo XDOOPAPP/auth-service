@@ -75,7 +75,11 @@ class AuthService {
     await userRepo.update(user);
 
     const bus = this.eventBus;
-    await bus.publish("USER_CREATED", { userId: user._id.toString() });
+    await bus.publish("USER_CREATED", { 
+      userId: user._id.toString(),
+      email: user.email,
+      fullName: user.fullName
+    });
 
     return {
       accessToken: jwtUtil.signAccessToken({
