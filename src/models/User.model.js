@@ -2,16 +2,20 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
-    email: { 
-      type: String, 
-      unique: true, 
-      required: true 
+    email: {
+      type: String,
+      unique: true,
+      required: true
     },
-    passwordHash: { 
-      type: String, 
-      required: true 
+    passwordHash: {
+      type: String,
+      required: true
     },
     fullName: {
+      type: String,
+      default: null
+    },
+    fcmToken: {
       type: String,
       default: null
     },
@@ -20,17 +24,17 @@ const userSchema = new mongoose.Schema(
       enum: ["USER", "ADMIN"],
       default: "USER"
     },
-    isVerified: { 
-      type: Boolean, 
-      default: false 
+    isVerified: {
+      type: Boolean,
+      default: false
     },
-    otpHash: { 
-      type: String, 
-      select: false 
+    otpHash: {
+      type: String,
+      select: false
     },
-    otpExpiredAt: { 
-      type: Date, 
-      select: false 
+    otpExpiredAt: {
+      type: Date,
+      select: false
     },
     refreshTokens: [
       {
@@ -39,8 +43,8 @@ const userSchema = new mongoose.Schema(
       }
     ]
   },
-  { 
-    timestamps: true 
+  {
+    timestamps: true
   }
 );
 

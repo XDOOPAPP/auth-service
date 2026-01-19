@@ -36,6 +36,24 @@ class AuthService {
     };
   }
 
+  async fcmToken(userId, fcmToken) {
+    const user = await userRepo.findById(userId);
+    if (!user) throw new AppError("User not found");
+
+    user.fcmToken = fcmToken;
+    await userRepo.update(user);
+
+    await this.eventBus.publish("FCM_TOKEN_UPDATED", {
+      userId: user._id.toString(),
+      fcmToken,
+      role: user.role
+    });
+
+    return {
+      message: "FCM token updated successfully"
+    };
+  }
+
   async verifyOtp(email, otp) {
     const user = await userRepo.findByEmailWithOtp(email);
     if (!user) throw new AppError("User not found");
@@ -75,7 +93,7 @@ class AuthService {
     await userRepo.update(user);
 
     const bus = this.eventBus;
-    await bus.publish("USER_CREATED", { 
+    await bus.publish("USER_CREATED", {
       userId: user._id.toString(),
       email: user.email,
       fullName: user.fullName

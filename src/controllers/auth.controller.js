@@ -6,14 +6,21 @@ class AuthController {
   }
 
   // [POST] /api/v1/auth/register
-  register = async(req, res) => {
+  register = async (req, res) => {
     const { email, password, fullName } = req.body;
     const result = await this.authService.register(email, password, fullName);
     res.json(result);
   }
 
+  // [POST] /api/v1/auth/fcm-token
+  fcmToken = async (req, res) => {
+    const { fcmToken } = req.body;
+    const result = await this.authService.fcmToken(req.user.userId, fcmToken);
+    res.json(result);
+  }
+
   // [POST] /api/v1/auth/verify-otp
-  verifyOtp = async(req, res) => {
+  verifyOtp = async (req, res) => {
     const { email, otp } = req.body;
     const result = await this.authService.verifyOtp(email, otp);
     res.json(result);
