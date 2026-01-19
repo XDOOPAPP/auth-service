@@ -176,6 +176,9 @@ Base URL: `http://localhost:3001/api/v1/auth`
 | Method | Endpoint | Mô Tả | Auth |
 |--------|----------|-------|------|
 | `GET` | `/me` | Lấy thông tin user hiện tại | Bearer Token |
+| `POST` | `/register-admin` | Đăng ký tài khoản Admin mới | Bearer Token |
+| `GET` | `/all-admin` | Lấy danh sách tài công Admin | Bearer Token |
+| `POST` | `/fcm-token` | Cập nhật FCM token cho user | Bearer Token |
 
 ## 📝 API Usage Examples
 
@@ -378,6 +381,71 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```json
 {
   "valid": false
+}
+```
+
+---
+
+### 7. Register Admin (Protected)
+
+```http
+POST /api/v1/auth/register-admin
+Authorization: Bearer <admin_token>
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "AdminSecurePass123!",
+  "fullName": "System Admin"
+}
+```
+
+**Response:**
+```json
+{
+  "message": "Admin created successfully"
+}
+```
+
+---
+
+### 8. Get All Admins (Protected)
+
+```http
+GET /api/v1/auth/all-admin
+Authorization: Bearer <admin_token>
+```
+
+**Response:**
+```json
+[
+  {
+    "_id": "65a1b2c3...",
+    "email": "admin@example.com",
+    "fullName": "System Admin",
+    "role": "ADMIN"
+  }
+]
+```
+
+---
+
+### 9. Update FCM Token (Protected)
+
+```http
+POST /api/v1/auth/fcm-token
+Authorization: Bearer <user_token>
+Content-Type: application/json
+
+{
+  "fcmToken": "fcm_token_string_here"
+}
+```
+
+**Response:**
+```json
+{
+  "message": "FCM token updated successfully"
 }
 ```
 

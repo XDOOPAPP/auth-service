@@ -9,6 +9,10 @@ module.exports = (app) => {
 
   router.post("/register", asyncHandler(auth.register));
 
+  router.post("/register-admin", authMiddleware, asyncHandler(auth.registerAdmin));
+
+  router.get("/all-admin", authMiddleware, asyncHandler(auth.getAllAdmin));
+
   router.post("/fcm-token", authMiddleware, asyncHandler(auth.fcmToken));
 
   router.post("/verify-otp", asyncHandler(auth.verifyOtp));

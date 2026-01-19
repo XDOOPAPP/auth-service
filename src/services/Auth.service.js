@@ -36,6 +36,30 @@ class AuthService {
     };
   }
 
+  async registerAdmin(email, password, fullName) {
+    const existing = await userRepo.findByEmail(email);
+    if (existing) throw new AppError("Email already exists");
+
+    const passwordHash = await hashUtil.hash(password);
+
+    await userRepo.create({
+      email,
+      passwordHash,
+      fullName,
+      isVerified: true,
+      role: "ADMIN"
+    });
+
+    return {
+      message: "Admin created successfully"
+    };
+  }
+
+  async getAllAdmin() {
+    const users = await userRepo.find({ role: "ADMIN" });
+    return users;
+  }
+
   async fcmToken(userId, fcmToken) {
     const user = await userRepo.findById(userId);
     if (!user) throw new AppError("User not found");

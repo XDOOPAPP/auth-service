@@ -12,6 +12,19 @@ class AuthController {
     res.json(result);
   }
 
+  // [POST] /api/v1/auth/register-admin
+  registerAdmin = async (req, res) => {
+    const { email, password, fullName } = req.body;
+    const result = await this.authService.registerAdmin(email, password, fullName);
+    res.json(result);
+  }
+
+  // [GET] /api/v1/auth/all-admin
+  getAllAdmin = async (req, res) => {
+    const result = await this.authService.getAllAdmin();
+    res.json(result);
+  }
+
   // [POST] /api/v1/auth/fcm-token
   fcmToken = async (req, res) => {
     const { fcmToken } = req.body;
