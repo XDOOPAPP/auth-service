@@ -203,6 +203,20 @@ class AuthService {
     };
   }
 
+  async changePassword(userId, oldPassword, newPassword) {
+    const user = await userRepo.findById(userId);
+    if (!user) throw new AppError("User not found");
+
+    const match = await hashUtil.compare(oldPassword, user.passwordHash);
+    if (!match) throw new AppError("Invalid old password");
+
+    const newPasswordHash = await hashUtil.hash(newPassword);
+    user.passwordHash = newPasswordHash;
+    await userRepo.update(user);
+
+    return { message: "Password changed successfully" };
+  }
+
   async getProfile(userId) {
     const user = await userRepo.findById(userId);
     if (!user) throw new AppError("User not found");

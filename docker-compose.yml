@@ -1,0 +1,28 @@
+services:
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fepa-auth-service
+    ports:
+      - '3001:3001'
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - MONGO_URL=mongodb://fepa:fepa123@fepa-mongodb:27017/fepa_auth?authSource=admin
+      - RABBITMQ_URL=amqp://fepa:fepa123@fepa-rabbitmq:5672
+      - JWT_SECRET=${JWT_SECRET:-fepa-key}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-your-refresh-secret-change-in-production}
+      - JWT_EXPIRATION=${JWT_EXPIRATION:-24h}
+      - EMAIL_USER=vvq0522@gmail.com
+      - EMAIL_PASS=pyzewbsumidnrqsw
+      - ADMIN_EMAIL=admin@fepa.com
+      - ADMIN_PASSWORD=AdminPassword123
+    networks:
+      - fepa-network
+    restart: unless-stopped
+
+networks:
+  fepa-network:
+    name: fepa-network
+    external: true

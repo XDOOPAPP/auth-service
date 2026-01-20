@@ -179,6 +179,7 @@ Base URL: `http://localhost:3001/api/v1/auth`
 | `POST` | `/register-admin` | Đăng ký tài khoản Admin mới | Bearer Token |
 | `GET` | `/all-admin` | Lấy danh sách tài công Admin | Bearer Token |
 | `POST` | `/fcm-token` | Cập nhật FCM token cho user | Bearer Token |
+| `POST` | `/change-password` | Thay đổi mật khẩu | Bearer Token |
 
 ## 📝 API Usage Examples
 
@@ -361,7 +362,29 @@ Content-Type: application/json
 
 ---
 
-### 6. Verify Token (For Other Services)
+### 6. Change Password (Protected)
+
+```http
+POST /api/v1/auth/change-password
+Authorization: Bearer <user_token>
+Content-Type: application/json
+
+{
+  "oldPassword": "SecurePass123!",
+  "newPassword": "BrandNewPass789!"
+}
+```
+
+**Response:**
+```json
+{
+  "message": "Password changed successfully"
+}
+```
+
+---
+
+### 7. Verify Token (For Other Services)
 
 ```http
 POST /api/v1/auth/verify
@@ -386,7 +409,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ---
 
-### 7. Register Admin (Protected)
+### 8. Register Admin (Protected)
 
 ```http
 POST /api/v1/auth/register-admin
@@ -409,7 +432,7 @@ Content-Type: application/json
 
 ---
 
-### 8. Get All Admins (Protected)
+### 9. Get All Admins (Protected)
 
 ```http
 GET /api/v1/auth/all-admin
@@ -430,7 +453,7 @@ Authorization: Bearer <admin_token>
 
 ---
 
-### 9. Update FCM Token (Protected)
+### 10. Update FCM Token (Protected)
 
 ```http
 POST /api/v1/auth/fcm-token

@@ -84,6 +84,17 @@ class AuthController {
     res.json(result);
   }
 
+  // [POST] /api/v1/auth/change-password
+  changePassword = async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+    const result = await this.authService.changePassword(
+      req.user.userId,
+      oldPassword,
+      newPassword
+    );
+    res.json(result);
+  }
+
   // [POST] /api/v1/auth/verify
   verifyToken = async (req, res) => {
     const token = req.headers.authorization?.split(" ")[1];

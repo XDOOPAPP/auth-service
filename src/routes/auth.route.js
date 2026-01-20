@@ -29,6 +29,8 @@ module.exports = (app) => {
 
   router.post("/reset-password", asyncHandler(auth.resetPassword));
 
+  router.post("/change-password", authMiddleware, asyncHandler(auth.changePassword));
+
   router.post("/verify", asyncHandler(auth.verifyToken));
 
   router.get("/health", (req, res) => {
