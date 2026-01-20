@@ -7,5 +7,7 @@ module.exports = {
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
   emailUser: process.env.EMAIL_USER,
   emailPass: process.env.EMAIL_PASS,
-  rabbitMQ_url: process.env.RABBITMQ_URL
+  rabbitMQ_url: process.env.RABBITMQ_URL,
+  adminEmail: process.env.ADMIN_EMAIL,
+  adminPassword: process.env.ADMIN_PASSWORD
 };
