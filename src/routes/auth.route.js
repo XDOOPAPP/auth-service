@@ -33,6 +33,15 @@ module.exports = (app) => {
 
   router.post("/verify", asyncHandler(auth.verifyToken));
 
+  // User Management CRUD Routes (require authentication)
+  router.get("/users", authMiddleware, asyncHandler(auth.getAllUsers));
+  
+  router.delete("/users/:userId", authMiddleware, asyncHandler(auth.deleteUser));
+  
+  router.patch("/users/:userId/deactivate", authMiddleware, asyncHandler(auth.deactivateUser));
+  
+  router.patch("/users/:userId/reactivate", authMiddleware, asyncHandler(auth.reactivateUser));
+
   router.get("/health", (req, res) => {
     res.status(200).json({ status: 'ok', service: 'auth-service' });
   });

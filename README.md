@@ -5,6 +5,7 @@ Dịch vụ xác thực (Authentication Service) cho hệ thống microservices,
 ## 📋 Tính Năng
 
 ### Authentication & Authorization
+
 - ✅ **Đăng ký tài khoản** với OTP verification qua email
 - ✅ **Đăng nhập** với email/password
 - ✅ **Refresh token** để cấp access token mới
@@ -12,14 +13,17 @@ Dịch vụ xác thực (Authentication Service) cho hệ thống microservices,
 - ✅ **Quản lý multiple sessions** (nhiều refresh tokens)
 
 ### Password Management
+
 - ✅ **Quên mật khẩu** và reset mật khẩu qua OTP
 - ✅ **Resend OTP** khi hết hạn hoặc không nhận được
 
 ### User Management
+
 - ✅ **Lấy thông tin user profile**
 - ✅ **Role-based access** (USER/ADMIN)
 
 ### Event-Driven Architecture
+
 - ✅ **RabbitMQ integration** cho event publishing
 - ✅ **USER_CREATED event** được publish sau khi verify OTP thành công
 
@@ -62,6 +66,7 @@ Dịch vụ xác thực (Authentication Service) cho hệ thống microservices,
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 18+
 - MongoDB 7.0+
 - RabbitMQ 3.12+
@@ -126,15 +131,15 @@ RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
 
 ### Giải Thích Biến Môi Trường
 
-| Biến | Mô Tả | Ví Dụ |
-|------|-------|-------|
-| `PORT` | Port mà service chạy | `3001` |
-| `MONGO_URL` | MongoDB connection string | `mongodb://localhost:27017/auth_db` |
-| `JWT_SECRET` | Secret key cho access token | Chuỗi ngẫu nhiên dài |
-| `JWT_REFRESH_SECRET` | Secret key cho refresh token | Chuỗi ngẫu nhiên dài khác |
-| `EMAIL_USER` | Gmail address để gửi OTP | `yourapp@gmail.com` |
-| `EMAIL_PASS` | Gmail App Password | Xem hướng dẫn bên dưới |
-| `RABBITMQ_URL` | RabbitMQ connection URL | `amqp://localhost:5672` |
+| Biến                 | Mô Tả                        | Ví Dụ                               |
+| -------------------- | ---------------------------- | ----------------------------------- |
+| `PORT`               | Port mà service chạy         | `3001`                              |
+| `MONGO_URL`          | MongoDB connection string    | `mongodb://localhost:27017/auth_db` |
+| `JWT_SECRET`         | Secret key cho access token  | Chuỗi ngẫu nhiên dài                |
+| `JWT_REFRESH_SECRET` | Secret key cho refresh token | Chuỗi ngẫu nhiên dài khác           |
+| `EMAIL_USER`         | Gmail address để gửi OTP     | `yourapp@gmail.com`                 |
+| `EMAIL_PASS`         | Gmail App Password           | Xem hướng dẫn bên dưới              |
+| `RABBITMQ_URL`       | RabbitMQ connection URL      | `amqp://localhost:5672`             |
 
 ### 📧 Cấu Hình Gmail App Password
 
@@ -149,6 +154,7 @@ RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
 ### 🔒 Security Notes
 
 > **QUAN TRỌNG:** Trong production:
+>
 > - Đổi tất cả secrets thành chuỗi ngẫu nhiên mạnh
 > - Không commit file `.env` vào Git
 > - Sử dụng secret management tools (AWS Secrets Manager, HashiCorp Vault, etc.)
@@ -160,32 +166,33 @@ Base URL: `http://localhost:3001/api/v1/auth`
 
 ### Public Endpoints
 
-| Method | Endpoint | Mô Tả | Body |
-|--------|----------|-------|------|
-| `POST` | `/register` | Đăng ký tài khoản mới | `email`, `password`, `fullName` |
-| `POST` | `/verify-otp` | Xác thực OTP và hoàn tất đăng ký | `email`, `otp` |
-| `POST` | `/resend-otp` | Gửi lại OTP | `email` |
-| `POST` | `/login` | Đăng nhập | `email`, `password` |
-| `POST` | `/refresh` | Refresh access token | `refreshToken` |
-| `POST` | `/forgot-password` | Gửi OTP để reset password | `email` |
-| `POST` | `/reset-password` | Reset password với OTP | `email`, `otp`, `newPassword` |
-| `POST` | `/verify` | Xác thực token | Header: `Authorization` |
+| Method | Endpoint           | Mô Tả                            | Body                            |
+| ------ | ------------------ | -------------------------------- | ------------------------------- |
+| `POST` | `/register`        | Đăng ký tài khoản mới            | `email`, `password`, `fullName` |
+| `POST` | `/verify-otp`      | Xác thực OTP và hoàn tất đăng ký | `email`, `otp`                  |
+| `POST` | `/resend-otp`      | Gửi lại OTP                      | `email`                         |
+| `POST` | `/login`           | Đăng nhập                        | `email`, `password`             |
+| `POST` | `/refresh`         | Refresh access token             | `refreshToken`                  |
+| `POST` | `/forgot-password` | Gửi OTP để reset password        | `email`                         |
+| `POST` | `/reset-password`  | Reset password với OTP           | `email`, `otp`, `newPassword`   |
+| `POST` | `/verify`          | Xác thực token                   | Header: `Authorization`         |
 
 ### Protected Endpoints
 
-| Method | Endpoint | Mô Tả | Auth |
-|--------|----------|-------|------|
-| `GET` | `/me` | Lấy thông tin user hiện tại | Bearer Token |
-| `POST` | `/register-admin` | Đăng ký tài khoản Admin mới | Bearer Token |
-| `GET` | `/all-admin` | Lấy danh sách tài công Admin | Bearer Token |
-| `POST` | `/fcm-token` | Cập nhật FCM token cho user | Bearer Token |
-| `POST` | `/change-password` | Thay đổi mật khẩu | Bearer Token |
+| Method | Endpoint           | Mô Tả                        | Auth         |
+| ------ | ------------------ | ---------------------------- | ------------ |
+| `GET`  | `/me`              | Lấy thông tin user hiện tại  | Bearer Token |
+| `POST` | `/register-admin`  | Đăng ký tài khoản Admin mới  | Bearer Token |
+| `GET`  | `/all-admin`       | Lấy danh sách tài công Admin | Bearer Token |
+| `POST` | `/fcm-token`       | Cập nhật FCM token cho user  | Bearer Token |
+| `POST` | `/change-password` | Thay đổi mật khẩu            | Bearer Token |
 
 ## 📝 API Usage Examples
 
 ### 1. Complete Registration Flow
 
 #### Step 1: Register
+
 ```http
 POST /api/v1/auth/register
 Content-Type: application/json
@@ -198,6 +205,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "message": "OTP sent to email. Please verify your account."
@@ -205,6 +213,7 @@ Content-Type: application/json
 ```
 
 **📧 Email nhận được:**
+
 ```
 Subject: Your OTP Code
 
@@ -214,6 +223,7 @@ This code will expire in 5 minutes.
 ```
 
 #### Step 2: Verify OTP
+
 ```http
 POST /api/v1/auth/verify-otp
 Content-Type: application/json
@@ -225,6 +235,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWE...",
@@ -233,6 +244,7 @@ Content-Type: application/json
 ```
 
 **🔔 Event Published:**
+
 ```json
 {
   "event": "USER_CREATED",
@@ -243,6 +255,7 @@ Content-Type: application/json
 ```
 
 #### Step 3 (Optional): Resend OTP
+
 ```http
 POST /api/v1/auth/resend-otp
 Content-Type: application/json
@@ -253,6 +266,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "message": "OTP resent to email"
@@ -274,6 +288,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -295,6 +310,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
@@ -311,6 +327,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Response:**
+
 ```json
 {
   "id": "65a1b2c3d4e5f6g7h8i9j0k1",
@@ -325,6 +342,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ### 5. Forgot Password Flow
 
 #### Step 1: Request OTP
+
 ```http
 POST /api/v1/auth/forgot-password
 Content-Type: application/json
@@ -335,6 +353,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "message": "OTP sent to email"
@@ -342,6 +361,7 @@ Content-Type: application/json
 ```
 
 #### Step 2: Reset Password
+
 ```http
 POST /api/v1/auth/reset-password
 Content-Type: application/json
@@ -354,6 +374,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Password reset successful"
@@ -376,6 +397,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Password changed successfully"
@@ -392,6 +414,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Response (Valid Token):**
+
 ```json
 {
   "valid": true,
@@ -401,6 +424,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Response (Invalid Token):**
+
 ```json
 {
   "valid": false
@@ -424,6 +448,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Admin created successfully"
@@ -440,12 +465,13 @@ Authorization: Bearer <admin_token>
 ```
 
 **Response:**
+
 ```json
 [
   {
     "_id": "65a1b2c3...",
-    "email": "admin@example.com",
-    "fullName": "System Admin",
+    "email": "Z@example.com",
+    "fullName": "System ",
     "role": "ADMIN"
   }
 ]
@@ -466,15 +492,123 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "message": "FCM token updated successfully"
 }
 ```
 
+---
+
+## 👥 User Management Endpoints (Protected)
+
+Tất cả endpoints dưới đây yêu cầu authentication với `Authorization: Bearer <admin_or_user_token>`
+
+### 11. Get All Users (Protected)
+
+```http
+GET /api/v1/auth/users?page=1&limit=10&isVerified=true&search=john
+Authorization: Bearer <token>
+```
+
+**Query Parameters:**
+
+- `page` (optional): Trang, mặc định 1
+- `limit` (optional): Số bản ghi/trang, mặc định 10
+- `role` (optional): Filter by role (USER, ADMIN)
+- `isVerified` (optional): Filter by verification status (true/false)
+- `search` (optional): Tìm kiếm theo email hoặc fullName
+
+**Response:**
+
+```json
+{
+  "data": [
+    {
+      "_id": "65a1b2c3...",
+      "email": "user@example.com",
+      "fullName": "John Doe",
+      "role": "USER",
+      "isVerified": true,
+      "createdAt": "2024-01-15T10:30:00Z",
+      "updatedAt": "2024-01-15T10:30:00Z"
+    }
+  ],
+  "pagination": {
+    "total": 50,
+    "page": 1,
+    "limit": 10,
+    "totalPages": 5
+  }
+}
+```
+
+### 15. Delete User (Protected - Admin Only)
+
+```http
+DELETE /api/v1/auth/users/:userId
+Authorization: Bearer <admin_token>
+```
+
+**Response:**
+
+```json
+{
+  "message": "User deleted successfully"
+}
+```
+
+---
+
+### 16. Deactivate User (Protected)
+
+```http
+PUT /api/v1/auth/users/:userId/deactivate
+Authorization: Bearer <token>
+```
+
+**Response:**
+
+```json
+{
+  "_id": "65a1b2c3...",
+  "email": "user@example.com",
+  "fullName": "John Doe",
+  "role": "USER",
+  "isVerified": false,
+  "createdAt": "2024-01-15T10:30:00Z",
+  "updatedAt": "2024-01-16T12:00:00Z"
+}
+```
+
+---
+
+### 17. Reactivate User (Protected)
+
+```http
+PUT /api/v1/auth/users/:userId/reactivate
+Authorization: Bearer <token>
+```
+
+**Response:**
+
+```json
+{
+  "_id": "65a1b2c3...",
+  "email": "user@example.com",
+  "fullName": "John Doe",
+  "role": "USER",
+  "isVerified": true,
+  "createdAt": "2024-01-15T10:30:00Z",
+  "updatedAt": "2024-01-16T12:00:00Z"
+}
+```
+
 ## 🔐 Token Configuration
 
 ### Access Token
+
 - **Thời hạn:** 15 phút
 - **Secret:** `JWT_SECRET`
 - **Payload:** `{ userId, role }`
@@ -482,6 +616,7 @@ Content-Type: application/json
 - **Usage:** Gửi trong header `Authorization: Bearer <token>`
 
 ### Refresh Token
+
 - **Thời hạn:** 7 ngày
 - **Secret:** `JWT_REFRESH_SECRET`
 - **Lưu trữ:** Database (RefreshToken collection)
@@ -531,7 +666,7 @@ Service này sử dụng **RabbitMQ** để publish events cho các services kh�
 
 ```javascript
 // EventBus được khởi tạo trong index.js
-const EventBus = require('./src/infra/event-bus/event-bus');
+const EventBus = require("./src/infra/event-bus/event-bus");
 const bus = new EventBus(env.rabbitMQ_url);
 await bus.connect();
 ```
@@ -543,6 +678,7 @@ await bus.connect();
 **Khi nào:** Sau khi user verify OTP thành công (hoàn tất đăng ký)
 
 **Payload:**
+
 ```json
 {
   "userId": "65a1b2c3d4e5f6g7h8i9j0k1"
@@ -554,6 +690,7 @@ await bus.connect();
 **Routing Key:** `USER_CREATED`
 
 **Use Cases:**
+
 - User Service lắng nghe để tạo user profile
 - Notification Service gửi welcome email
 - Analytics Service track user registration
@@ -564,13 +701,13 @@ Các services khác có thể subscribe vào events:
 
 ```javascript
 // Trong service khác
-const EventBus = require('./event-bus');
+const EventBus = require("./event-bus");
 const bus = new EventBus(process.env.RABBITMQ_URL);
 await bus.connect();
 
 // Subscribe to USER_CREATED event
-await bus.subscribe('USER_CREATED', async (payload) => {
-  console.log('New user created:', payload.userId);
+await bus.subscribe("USER_CREATED", async (payload) => {
+  console.log("New user created:", payload.userId);
   // Xử lý logic (tạo profile, gửi email, etc.)
 });
 ```
@@ -595,6 +732,7 @@ await bus.subscribe('USER_CREATED', async (payload) => {
 ```
 
 **Indexes:**
+
 - `email`: unique index
 
 ### RefreshToken Model
@@ -611,6 +749,7 @@ await bus.subscribe('USER_CREATED', async (payload) => {
 ```
 
 **Indexes:**
+
 - `token`: index for fast lookup
 
 ## 🏗️ Cấu Trúc Dự Án
@@ -677,49 +816,50 @@ Service sử dụng global error middleware để xử lý tất cả errors.
 
 ### Common Errors
 
-| Status | Message | Nguyên Nhân |
-|--------|---------|-------------|
-| `400` | `Email already exists` | Email đã được đăng ký |
-| `400` | `Invalid or expired OTP` | OTP sai hoặc hết hạn (>5 phút) |
-| `400` | `Account already verified` | Tài khoản đã verify, không thể resend OTP |
-| `401` | `Invalid credentials` | Email hoặc password sai |
-| `401` | `Account not verified` | Chưa verify OTP sau khi đăng ký |
-| `401` | `Invalid refresh token` | Refresh token không tồn tại hoặc đã revoked |
-| `401` | `Refresh token expired` | Refresh token hết hạn (>7 ngày) |
-| `401` | `Unauthorized` | Không có token trong header |
-| `401` | `Invalid token` | Access token không hợp lệ hoặc hết hạn |
-| `404` | `User not found` | User không tồn tại trong database |
+| Status | Message                    | Nguyên Nhân                                 |
+| ------ | -------------------------- | ------------------------------------------- |
+| `400`  | `Email already exists`     | Email đã được đăng ký                       |
+| `400`  | `Invalid or expired OTP`   | OTP sai hoặc hết hạn (>5 phút)              |
+| `400`  | `Account already verified` | Tài khoản đã verify, không thể resend OTP   |
+| `401`  | `Invalid credentials`      | Email hoặc password sai                     |
+| `401`  | `Account not verified`     | Chưa verify OTP sau khi đăng ký             |
+| `401`  | `Invalid refresh token`    | Refresh token không tồn tại hoặc đã revoked |
+| `401`  | `Refresh token expired`    | Refresh token hết hạn (>7 ngày)             |
+| `401`  | `Unauthorized`             | Không có token trong header                 |
+| `401`  | `Invalid token`            | Access token không hợp lệ hoặc hết hạn      |
+| `404`  | `User not found`           | User không tồn tại trong database           |
 
 ### Error Handling Example
 
 ```javascript
 // Client-side error handling
 try {
-  const response = await fetch('/api/v1/auth/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password })
+  const response = await fetch("/api/v1/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
   });
-  
+
   if (!response.ok) {
     const error = await response.json();
     console.error(`Error ${error.status}: ${error.message}`);
     // Handle specific errors
-    if (error.status === 401 && error.message === 'Account not verified') {
+    if (error.status === 401 && error.message === "Account not verified") {
       // Redirect to OTP verification page
     }
   }
-  
+
   const data = await response.json();
   // Success handling
 } catch (err) {
-  console.error('Network error:', err);
+  console.error("Network error:", err);
 }
 ```
 
 ## 🔄 Authentication Flow
 
 ### Registration Flow
+
 ```
 1. Client gửi POST /register với email, password, fullName
 2. Service kiểm tra email đã tồn tại chưa
@@ -739,6 +879,7 @@ try {
 ```
 
 ### Login Flow
+
 ```
 1. Client gửi POST /login với email, password
 2. Service tìm user theo email
@@ -750,6 +891,7 @@ try {
 ```
 
 ### Token Refresh Flow
+
 ```
 1. Client gửi POST /refresh với refreshToken
 2. Service tìm RefreshToken trong database
@@ -760,6 +902,7 @@ try {
 ```
 
 ### Protected Route Flow
+
 ```
 1. Client gửi request với header: Authorization: Bearer <accessToken>
 2. Auth middleware extract token từ header
@@ -772,21 +915,21 @@ try {
 
 ### Production Dependencies
 
-| Package | Version | Mô Tả |
-|---------|---------|-------|
-| `express` | ^5.2.1 | Web framework |
-| `mongoose` | ^9.0.1 | MongoDB ODM |
-| `jsonwebtoken` | ^9.0.3 | JWT handling |
-| `bcrypt` | ^6.0.0 | Password hashing |
-| `nodemailer` | ^7.0.12 | Email sending |
-| `dotenv` | ^17.2.3 | Environment variables |
-| `morgan` | ^1.10.1 | HTTP request logger |
-| `amqplib` | ^0.10.9 | RabbitMQ client |
+| Package        | Version | Mô Tả                 |
+| -------------- | ------- | --------------------- |
+| `express`      | ^5.2.1  | Web framework         |
+| `mongoose`     | ^9.0.1  | MongoDB ODM           |
+| `jsonwebtoken` | ^9.0.3  | JWT handling          |
+| `bcrypt`       | ^6.0.0  | Password hashing      |
+| `nodemailer`   | ^7.0.12 | Email sending         |
+| `dotenv`       | ^17.2.3 | Environment variables |
+| `morgan`       | ^1.10.1 | HTTP request logger   |
+| `amqplib`      | ^0.10.9 | RabbitMQ client       |
 
 ### Development Dependencies
 
-| Package | Version | Mô Tả |
-|---------|---------|-------|
+| Package   | Version | Mô Tả                         |
+| --------- | ------- | ----------------------------- |
 | `nodemon` | ^3.1.11 | Auto-reload trong development |
 
 ## 🐳 Docker Setup
@@ -830,22 +973,27 @@ docker stop auth-service
 ## 🔧 Development
 
 ### Install Dependencies
+
 ```bash
 npm install
 ```
 
 ### Run Development Server
+
 ```bash
 npm run dev
 ```
+
 Server sẽ chạy trên `http://localhost:3001` với auto-reload khi code thay đổi.
 
 ### Run Production Server
+
 ```bash
 npm start
 ```
 
 ### Environment Setup
+
 ```bash
 # Copy template
 cp .env.example .env
@@ -863,6 +1011,7 @@ Tạo collection với các endpoints ở trên.
 ### 2. Environment Variables
 
 Tạo environment với:
+
 ```
 baseUrl: http://localhost:3001/api/v1/auth
 accessToken: (sẽ set sau khi login)
@@ -881,6 +1030,7 @@ refreshToken: (sẽ set sau khi login)
 ## 🔒 Security Best Practices
 
 ### Implemented
+
 - ✅ Passwords được hash với bcrypt (salt rounds: 10)
 - ✅ OTP được hash trước khi lưu database
 - ✅ JWT tokens có expiration time
@@ -890,6 +1040,7 @@ refreshToken: (sẽ set sau khi login)
 - ✅ Sensitive fields (otpHash, otpExpiredAt) có `select: false`
 
 ### Recommendations for Production
+
 - 🔐 Sử dụng HTTPS cho tất cả connections
 - 🔐 Implement rate limiting (express-rate-limit)
 - 🔐 Add CORS configuration
@@ -903,43 +1054,57 @@ refreshToken: (sẽ set sau khi login)
 ## 🐛 Troubleshooting
 
 ### MongoDB Connection Failed
+
 ```
 Error: connect ECONNREFUSED 127.0.0.1:27017
 ```
+
 **Giải pháp:**
+
 - Kiểm tra MongoDB đang chạy: `mongod --version`
 - Kiểm tra `MONGO_URL` trong `.env`
 - Nếu dùng Docker: đảm bảo service name đúng (`mongodb` thay vì `localhost`)
 
 ### RabbitMQ Connection Failed
+
 ```
 Error: connect ECONNREFUSED 127.0.0.1:5672
 ```
+
 **Giải pháp:**
+
 - Kiểm tra RabbitMQ đang chạy: `rabbitmq-server`
 - Kiểm tra `RABBITMQ_URL` trong `.env`
 - Nếu dùng Docker: đảm bảo service name đúng (`rabbitmq` thay vì `localhost`)
 
 ### Email Not Sending
+
 ```
 Error: Invalid login: 535-5.7.8 Username and Password not accepted
 ```
+
 **Giải pháp:**
+
 - Đảm bảo dùng **App Password**, không phải password Gmail thường
 - Bật 2-Step Verification trong Google Account
 - Tạo App Password mới và update `.env`
 
 ### JWT_SECRET Not Defined
+
 ```
 Error: JWT_SECRET is not defined
 ```
+
 **Giải pháp:**
+
 - Kiểm tra file `.env` có tồn tại không
 - Đảm bảo `JWT_SECRET` và `JWT_REFRESH_SECRET` được set
 - Restart server sau khi thay đổi `.env`
 
 ### OTP Always Invalid
+
 **Giải pháp:**
+
 - Kiểm tra OTP chưa hết hạn (5 phút)
 - Đảm bảo gửi đúng email đã đăng ký
 - Check email spam folder
@@ -962,9 +1127,11 @@ Contributions are welcome! Please follow these steps:
 ## 📞 Support
 
 Nếu gặp vấn đề hoặc có câu hỏi, vui lòng:
+
 - Tạo issue trên GitHub repository
 - Liên hệ team qua email
-vvq0522@gmail.com
+  vvq0522@gmail.com
+
 ---
 
 **Made with ❤️ for Microservices Architecture**

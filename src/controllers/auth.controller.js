@@ -101,6 +101,46 @@ class AuthController {
     const result = await this.authService.verifyToken(token);
     res.json(result);
   }
+
+  // User Management CRUD Methods
+
+  // [GET] /api/v1/auth/users
+  getAllUsers = async (req, res) => {
+    const { page = 1, limit = 10, isVerified, search } = req.query;
+    const filters = {};
+    
+    if (isVerified !== undefined) filters.isVerified = isVerified === "true";
+    if (search) filters.search = search;
+
+    const result = await this.authService.getAllUsers(
+      parseInt(page),
+      parseInt(limit),
+      filters
+    );
+    res.json(result);
+  }
+
+  // [DELETE] /api/v1/auth/users/:userId
+  deleteUser = async (req, res) => {
+    const { userId } = req.params;
+    const result = await this.authService.deleteUser(userId);
+    res.json(result);
+  }
+
+  // [PATCH] /api/v1/auth/users/:userId/deactivate
+  deactivateUser = async (req, res) => {
+    const { userId } = req.params;
+    const result = await this.authService.deactivateUser(userId);
+    res.json(result);
+  }
+
+  // [PATCH] /api/v1/auth/users/:userId/reactivate
+  reactivateUser = async (req, res) => {
+    const { userId } = req.params;
+    const result = await this.authService.reactivateUser(userId);
+    res.json(result);
+  }
+
 }
 
 module.exports = AuthController;

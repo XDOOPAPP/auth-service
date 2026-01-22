@@ -158,6 +158,9 @@ class AuthService {
     const user = await userRepo.findByEmail(email);
     if (!user) throw new AppError("Invalid credentials");
 
+    if (!user.isActive)
+      throw new AppError("Account is deactivated");
+
     if (!user.isVerified)
       throw new AppError("Account not verified");
 
@@ -277,6 +280,65 @@ class AuthService {
     } catch {
       return { valid: false };
     }
+  }
+
+  // User Management CRUD Methods
+  async getAllUsers(page = 1, limit = 10, filters = {}) {
+    const skip = (page - 1) * limit;
+    const query = {};
+
+    if (filters.isVerified !== undefined) {
+      query.isVerified = filters.isVerified;
+    }
+    if (filters.search) {
+      query.$or = [
+        { email: { $regex: filters.search, $options: "i" } },
+        { fullName: { $regex: filters.search, $options: "i" } }
+      ];
+    }
+
+    const users = await userRepo.findAll(query, skip, limit);
+    const total = await userRepo.countByQuery(query);
+
+    return {
+      data: users,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    };
+  }
+
+  async deleteUser(userId) {
+    const user = await userRepo.findById(userId);
+    if (!user) throw new AppError("User not found", 404);
+
+    await userRepo.deleteById(userId);
+    return { message: "User deleted successfully" };
+  }
+
+  async deactivateUser(userId) {
+    const user = await userRepo.findById(userId);
+    if (!user) throw new AppError("User not found", 404);
+
+    user.isActive = false;
+    await userRepo.update(user);
+
+    const { passwordHash, otpHash, otpExpiredAt, ...userWithoutSensitive } = user.toObject();
+    return userWithoutSensitive;
+  }
+
+  async reactivateUser(userId) {
+    const user = await userRepo.findById(userId);
+    if (!user) throw new AppError("User not found", 404);
+
+    user.isActive = true;
+    await userRepo.update(user);
+
+    const { passwordHash, otpHash, otpExpiredAt, ...userWithoutSensitive } = user.toObject();
+    return userWithoutSensitive;
   }
 
 }

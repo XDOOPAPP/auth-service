@@ -19,12 +19,24 @@ class UserRepository {
       .select("+otpHash +otpExpiredAt");
   }
 
-  async findById(id) {
-    return User.findById(id);
-  }
-
   async update(user) {
     return user.save();
+  }
+
+  async deleteById(id) {
+    return User.findByIdAndDelete(id);
+  }
+
+  async findAll(query = {}, skip = 0, limit = 10) {
+    return User.find(query)
+      .skip(skip)
+      .limit(limit)
+      .select("-passwordHash -otpHash -otpExpiredAt")
+      .sort({ createdAt: -1 });
+  }
+
+  async countByQuery(query = {}) {
+    return User.countDocuments(query);
   }
 }
 
