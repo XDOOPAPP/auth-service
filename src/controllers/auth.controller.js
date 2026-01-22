@@ -141,6 +141,20 @@ class AuthController {
     res.json(result);
   }
 
+  // [GET] /api/v1/auth/stats/users-over-time
+  getUsersOverTime = async (req, res) => {
+    const { period = 'daily', days = 30 } = req.query;
+    const result = await this.authService.getUsersOverTime(period, parseInt(days));
+    res.json(result);
+  }
+
+  // [GET] /api/v1/auth/stats/total
+  getTotalUsersStats = async (req, res) => {
+    const result = await this.authService.getTotalUsersStats();
+    res.json(result);
+  }
+
+
 }
 
 module.exports = AuthController;

@@ -341,6 +341,21 @@ class AuthService {
     return userWithoutSensitive;
   }
 
+  // Statistics Methods
+
+  async getUsersOverTime(period = 'daily', days = 30) {
+    const stats = await userRepo.getUserStatsOverTime(period, days);
+    return {
+      period,
+      days,
+      data: stats
+    };
+  }
+
+  async getTotalUsersStats() {
+    return await userRepo.getTotalUsersStats();
+  }
+
 }
 
 module.exports = AuthService;

@@ -42,6 +42,11 @@ module.exports = (app) => {
   
   router.patch("/users/:userId/reactivate", authMiddleware, asyncHandler(auth.reactivateUser));
 
+  // Statistics Routes (require authentication)
+  router.get("/stats/users-over-time", authMiddleware, asyncHandler(auth.getUsersOverTime));
+  
+  router.get("/stats/total", authMiddleware, asyncHandler(auth.getTotalUsersStats));
+
   router.get("/health", (req, res) => {
     res.status(200).json({ status: 'ok', service: 'auth-service' });
   });
