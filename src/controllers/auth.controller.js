@@ -53,6 +53,20 @@ class AuthController {
     res.json(result);
   }
 
+  // [POST] /api/v1/auth/update-profile
+  updateProfile = async (req, res) => {
+    const { email, fullName } = req.body;
+    const avatarFile = req.file;
+
+    const result = await this.authService.updateProfile(
+      req.user.userId,
+      email,
+      fullName,
+      avatarFile
+    );
+    res.json(result);
+  }
+
   // [POST] /api/v1/auth/refresh
   refresh = async (req, res) => {
     const { refreshToken } = req.body;

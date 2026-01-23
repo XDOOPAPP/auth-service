@@ -16,16 +16,31 @@ Dịch vụ xác thực (Authentication Service) cho hệ thống microservices,
 
 - ✅ **Quên mật khẩu** và reset mật khẩu qua OTP
 - ✅ **Resend OTP** khi hết hạn hoặc không nhận được
+- ✅ **Thay đổi mật khẩu** cho user đã đăng nhập
 
 ### User Management
 
 - ✅ **Lấy thông tin user profile**
+- ✅ **Cập nhật profile** (email, fullName, avatar)
 - ✅ **Role-based access** (USER/ADMIN)
+- ✅ **Quản lý Admin** - tạo, lấy danh sách
+- ✅ **User Management CRUD** - lấy danh sách, xóa, vô hiệu hóa, kích hoạt
+
+### FCM Notification
+
+- ✅ **Cập nhật FCM token** cho push notifications
+- ✅ **Event publishing** khi FCM token được cập nhật
+
+### Analytics & Statistics
+
+- ✅ **Thống kê users theo thời gian** (daily, weekly, monthly)
+- ✅ **Thống kê tổng quan users** (total, verified, user count)
 
 ### Event-Driven Architecture
 
 - ✅ **RabbitMQ integration** cho event publishing
 - ✅ **USER_CREATED event** được publish sau khi verify OTP thành công
+- ✅ **FCM_TOKEN_UPDATED event** khi user update FCM token
 
 ## 🏗️ Kiến Trúc
 
@@ -179,13 +194,20 @@ Base URL: `http://localhost:3001/api/v1/auth`
 
 ### Protected Endpoints
 
-| Method | Endpoint           | Mô Tả                        | Auth         |
-| ------ | ------------------ | ---------------------------- | ------------ |
-| `GET`  | `/me`              | Lấy thông tin user hiện tại  | Bearer Token |
-| `POST` | `/register-admin`  | Đăng ký tài khoản Admin mới  | Bearer Token |
-| `GET`  | `/all-admin`       | Lấy danh sách tài công Admin | Bearer Token |
-| `POST` | `/fcm-token`       | Cập nhật FCM token cho user  | Bearer Token |
-| `POST` | `/change-password` | Thay đổi mật khẩu            | Bearer Token |
+| Method   | Endpoint                    | Mô Tả                            | Auth         |
+| -------- | --------------------------- | -------------------------------- | ------------ |
+| `GET`    | `/me`                       | Lấy thông tin user hiện tại      | Bearer Token |
+| `POST`   | `/register-admin`           | Đăng ký tài khoản Admin mới      | Bearer Token |
+| `GET`    | `/all-admin`                | Lấy danh sách tài khoản Admin    | Bearer Token |
+| `POST`   | `/fcm-token`                | Cập nhật FCM token cho user      | Bearer Token |
+| `POST`   | `/change-password`          | Thay đổi mật khẩu                | Bearer Token |
+| `POST`   | `/update-profile`           | Cập nhật thông tin user          | Bearer Token |
+| `GET`    | `/users`                    | Lấy danh sách users (phân trang) | Bearer Token |
+| `DELETE` | `/users/:userId`            | Xóa user                         | Bearer Token |
+| `PATCH`  | `/users/:userId/deactivate` | Vô hiệu hóa tài khoản user       | Bearer Token |
+| `PATCH`  | `/users/:userId/reactivate` | Kích hoạt lại tài khoản user     | Bearer Token |
+| `GET`    | `/stats/users-over-time`    | Thống kê users theo thời gian    | Bearer Token |
+| `GET`    | `/stats/total`              | Thống kê tổng quan users         | Bearer Token |
 
 ## 📝 API Usage Examples
 
@@ -499,13 +521,49 @@ Content-Type: application/json
 }
 ```
 
+**Event Published:**
+
+```json
+{
+  "event": "FCM_TOKEN_UPDATED",
+  "payload": {
+    "userId": "65a1b2c3d4e5f6g7h8i9j0k1",
+    "fcmToken": "fcm_token_string_here",
+    "role": "USER"
+  }
+}
+```
+
+---
+
+### 11. Update Profile (Protected)
+
+```http
+POST /api/v1/auth/update-profile
+Authorization: Bearer <user_token>
+Content-Type: multipart/form-data
+
+Form Data:
+- email: new.email@example.com
+- fullName: John Updated
+- avatar: <file> (optional)
+```
+
+**Response:**
+
+```json
+{
+  "message": "Profile updated successfully"
+}
+```
+
 ---
 
 ## 👥 User Management Endpoints (Protected)
 
 Tất cả endpoints dưới đây yêu cầu authentication với `Authorization: Bearer <admin_or_user_token>`
 
-### 11. Get All Users (Protected)
+### 12. Get All Users (Protected)
 
 ```http
 GET /api/v1/auth/users?page=1&limit=10&isVerified=true&search=john
@@ -516,7 +574,6 @@ Authorization: Bearer <token>
 
 - `page` (optional): Trang, mặc định 1
 - `limit` (optional): Số bản ghi/trang, mặc định 10
-- `role` (optional): Filter by role (USER, ADMIN)
 - `isVerified` (optional): Filter by verification status (true/false)
 - `search` (optional): Tìm kiếm theo email hoặc fullName
 
@@ -531,6 +588,8 @@ Authorization: Bearer <token>
       "fullName": "John Doe",
       "role": "USER",
       "isVerified": true,
+      "isActive": true,
+      "avatar": "https://cloudinary.com/...",
       "createdAt": "2024-01-15T10:30:00Z",
       "updatedAt": "2024-01-15T10:30:00Z"
     }
@@ -544,11 +603,13 @@ Authorization: Bearer <token>
 }
 ```
 
-### 15. Delete User (Protected - Admin Only)
+---
+
+### 13. Delete User (Protected)
 
 ```http
 DELETE /api/v1/auth/users/:userId
-Authorization: Bearer <admin_token>
+Authorization: Bearer <token>
 ```
 
 **Response:**
@@ -561,33 +622,10 @@ Authorization: Bearer <admin_token>
 
 ---
 
-### 16. Deactivate User (Protected)
+### 14. Deactivate User (Protected)
 
 ```http
-PUT /api/v1/auth/users/:userId/deactivate
-Authorization: Bearer <token>
-```
-
-**Response:**
-
-```json
-{
-  "_id": "65a1b2c3...",
-  "email": "user@example.com",
-  "fullName": "John Doe",
-  "role": "USER",
-  "isVerified": false,
-  "createdAt": "2024-01-15T10:30:00Z",
-  "updatedAt": "2024-01-16T12:00:00Z"
-}
-```
-
----
-
-### 17. Reactivate User (Protected)
-
-```http
-PUT /api/v1/auth/users/:userId/reactivate
+PATCH /api/v1/auth/users/:userId/deactivate
 Authorization: Bearer <token>
 ```
 
@@ -600,10 +638,99 @@ Authorization: Bearer <token>
   "fullName": "John Doe",
   "role": "USER",
   "isVerified": true,
+  "isActive": false,
+  "avatar": "https://cloudinary.com/...",
   "createdAt": "2024-01-15T10:30:00Z",
   "updatedAt": "2024-01-16T12:00:00Z"
 }
 ```
+
+---
+
+### 15. Reactivate User (Protected)
+
+```http
+PATCH /api/v1/auth/users/:userId/reactivate
+Authorization: Bearer <token>
+```
+
+**Response:**
+
+```json
+{
+  "_id": "65a1b2c3...",
+  "email": "user@example.com",
+  "fullName": "John Doe",
+  "role": "USER",
+  "isVerified": true,
+  "isActive": true,
+  "avatar": "https://cloudinary.com/...",
+  "createdAt": "2024-01-15T10:30:00Z",
+  "updatedAt": "2024-01-16T12:00:00Z"
+}
+```
+
+---
+
+### 16. Get Users Statistics Over Time (Protected)
+
+```http
+GET /api/v1/auth/stats/users-over-time?period=daily&days=30
+Authorization: Bearer <token>
+```
+
+**Query Parameters:**
+
+- `period` (optional): Khoảng thời gian - `daily` | `weekly` | `monthly`. Mặc định: `daily`
+- `days` (optional): Số ngày quay trở lại. Mặc định: 30
+
+**Response:**
+
+```json
+{
+  "period": "daily",
+  "days": 30,
+  "data": [
+    {
+      "period": "2024-01-15",
+      "count": 5
+    },
+    {
+      "period": "2024-01-16",
+      "count": 3
+    },
+    {
+      "period": "2024-01-17",
+      "count": 8
+    }
+  ]
+}
+```
+
+---
+
+### 17. Get Total Users Statistics (Protected)
+
+```http
+GET /api/v1/auth/stats/total
+Authorization: Bearer <token>
+```
+
+**Response:**
+
+```json
+{
+  "total": 150,
+  "verified": 145,
+  "user": 140
+}
+```
+
+Giải thích:
+
+- `total`: Tổng số users trong hệ thống
+- `verified`: Số users đã verify OTP
+- `user`: Số users có role "USER" (không tính ADMIN)
 
 ## 🔐 Token Configuration
 
@@ -681,7 +808,9 @@ await bus.connect();
 
 ```json
 {
-  "userId": "65a1b2c3d4e5f6g7h8i9j0k1"
+  "userId": "65a1b2c3d4e5f6g7h8i9j0k1",
+  "email": "user@example.com",
+  "fullName": "John Doe"
 }
 ```
 
@@ -694,6 +823,29 @@ await bus.connect();
 - User Service lắng nghe để tạo user profile
 - Notification Service gửi welcome email
 - Analytics Service track user registration
+
+#### FCM_TOKEN_UPDATED
+
+**Khi nào:** Sau khi user cập nhật FCM token thành công
+
+**Payload:**
+
+```json
+{
+  "userId": "65a1b2c3d4e5f6g7h8i9j0k1",
+  "fcmToken": "fcm_token_string_here",
+  "role": "USER"
+}
+```
+
+**Exchange:** `domain_events` (topic)
+
+**Routing Key:** `FCM_TOKEN_UPDATED`
+
+**Use Cases:**
+
+- Notification Service cập nhật FCM token để gửi push notifications
+- Analytics Service track FCM token updates
 
 ### Consuming Events (Ví Dụ)
 
@@ -721,8 +873,11 @@ await bus.subscribe("USER_CREATED", async (payload) => {
   email: String,              // unique, required
   passwordHash: String,       // required, bcrypt hashed
   fullName: String,           // optional
+  avatar: String,             // optional, Cloudinary URL
+  fcmToken: String,           // optional, Firebase Cloud Messaging token
   role: String,               // enum: ["USER", "ADMIN"], default: "USER"
   isVerified: Boolean,        // default: false
+  isActive: Boolean,          // default: true
   otpHash: String,            // select: false (không trả về mặc định)
   otpExpiredAt: Date,         // select: false
   refreshTokens: [ObjectId],  // references to RefreshToken

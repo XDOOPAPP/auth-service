@@ -2,6 +2,7 @@ const router = require("express").Router();
 const AuthController = require("../controllers/auth.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 const asyncHandler = require("../utils/asyncHandler");
+const upload = require("../config/multer")
 
 module.exports = (app) => {
   const bus = app.get("eventBus");
@@ -20,6 +21,8 @@ module.exports = (app) => {
   router.post("/resend-otp", asyncHandler(auth.resendOtp));
 
   router.post("/login", asyncHandler(auth.login));
+
+  router.post("/update-profile", authMiddleware, upload.single("avatar"), asyncHandler(auth.updateProfile));
 
   router.post("/refresh", asyncHandler(auth.refresh));
 

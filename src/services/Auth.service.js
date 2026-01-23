@@ -6,6 +6,7 @@ const emailService = require("../services/Email.service");
 const { generateOtp, hashOtp } = require("../utils/otp");
 const AppError = require("../utils/appError");
 const env = require("../config/env")
+const uploadToCloud = require("../utils/uploadToCloud")
 
 class AuthService {
 
@@ -183,6 +184,24 @@ class AuthService {
         role: user.role
       }),
       refreshToken
+    };
+  }
+
+  async updateProfile(userId, email, fullName, avatarFile) {
+    const user = await userRepo.findById(userId);
+    if (!user) throw new AppError("User not found");
+    if (email) user.email = email;
+    if (fullName) user.fullName = fullName;
+
+    if (avatarFile) {
+        const uploadResult = await uploadToCloud(avatarFile);
+        user.avatar = uploadResult.secure_url;
+    }
+
+    await userRepo.update(user);
+
+    return {
+      message: "Profile updated successfully"
     };
   }
 
