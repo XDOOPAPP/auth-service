@@ -12,7 +12,11 @@ const refreshTokenSchema = new mongoose.Schema(
       ref: "User",
       required: true
     },
-    expiresAt: Date,
+    expiresAt: {
+      type: Date,
+      required: true,
+      index: { expires: 0 } // TTL index
+    },
     isRevoked: { 
       type: Boolean, 
       default: false 

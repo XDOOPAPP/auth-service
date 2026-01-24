@@ -187,6 +187,23 @@ class AuthService {
     };
   }
 
+  async logout(refreshToken) {
+    const tokenDoc = await RefreshToken.findOne({
+      token: refreshToken,
+      isRevoked: false
+    });
+
+    if (!tokenDoc)
+      throw new AppError("Invalid refresh token");
+
+    tokenDoc.isRevoked = true;
+    await tokenDoc.save();
+
+    return {
+      message: "Logout successful"
+    };
+  }
+
   async updateProfile(userId, email, fullName, avatarFile) {
     const user = await userRepo.findById(userId);
     if (!user) throw new AppError("User not found");
@@ -194,8 +211,8 @@ class AuthService {
     if (fullName) user.fullName = fullName;
 
     if (avatarFile) {
-        const uploadResult = await uploadToCloud(avatarFile);
-        user.avatar = uploadResult.secure_url;
+      const uploadResult = await uploadToCloud(avatarFile);
+      user.avatar = uploadResult.secure_url;
     }
 
     await userRepo.update(user);

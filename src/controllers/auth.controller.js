@@ -53,6 +53,13 @@ class AuthController {
     res.json(result);
   }
 
+  // [POST] /api/v1/auth/logout
+  logout = async (req, res) => {
+    const { refreshToken } = req.body;
+    const result = await this.authService.logout(refreshToken);
+    res.json(result);
+  }
+
   // [POST] /api/v1/auth/update-profile
   updateProfile = async (req, res) => {
     const { email, fullName } = req.body;
