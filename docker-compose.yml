@@ -18,6 +18,9 @@ services:
       - EMAIL_PASS=pyzewbsumidnrqsw
       - ADMIN_EMAIL=admin@fepa.com
       - ADMIN_PASSWORD=AdminPassword123
+      - CLOUDINARY_NAME=dvwnd1eiz
+      - CLOUDINARY_KEY=612283224539323
+      - CLOUDINARY_SECRET=8lH7mOd4qgNLVSMJUycGnZad3lM
     networks:
       - fepa-network
     restart: unless-stopped

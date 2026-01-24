@@ -10,6 +10,10 @@ class UserRepository {
     return User.findOne({ email });
   }
 
+  async findById(id) {
+    return User.findById(id);
+  }
+
   async find(query) {
     return User.find(query);
   }
