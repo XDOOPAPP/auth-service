@@ -21,12 +21,6 @@ services:
       - CLOUDINARY_NAME=dvwnd1eiz
       - CLOUDINARY_KEY=612283224539323
       - CLOUDINARY_SECRET=8lH7mOd4qgNLVSMJUycGnZad3lM
-
-    depends_on:
-      mongodb:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
     networks:
       - fepa-network
     restart: unless-stopped
