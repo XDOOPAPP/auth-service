@@ -60,7 +60,7 @@ class AuthController {
     res.json(result);
   }
 
-  // [POST] /api/v1/auth/update-profile
+  // [PATCH] /api/v1/auth/update-profile
   updateProfile = async (req, res) => {
     const { email, fullName } = req.body;
     const avatarFile = req.file;

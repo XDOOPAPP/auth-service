@@ -24,7 +24,7 @@ module.exports = (app) => {
 
   router.post("/logout", authMiddleware, asyncHandler(auth.logout));
 
-  router.post("/update-profile", authMiddleware, upload.single("avatar"), asyncHandler(auth.updateProfile));
+  router.patch("/update-profile", authMiddleware, upload.single("avatar"), asyncHandler(auth.updateProfile));
 
   router.post("/refresh", asyncHandler(auth.refresh));
 
